@@ -5,7 +5,7 @@ dotenv.config();
 export default {
 	API_URL: process.env.API_URL || '/api',
 	HOST: process.env.HOST || 'localhost',
-	DB_PORT: process.env.PORT || 5432,
+	DB_PORT: process.env.PORT || 5500,
 	JWT_SECRET: process.env.JWT_SECRET || 'secret',
 	CONNECTION_STRING: process.env.CONNECTION_STRING || '',
 	DATABASE: process.env.DATABASE || '',

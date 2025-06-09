@@ -28,7 +28,7 @@ app.use(bodyParser.json());
 app.use(passport.initialize());
 app.use(express.urlencoded({ extended: true }));
 
-app.set("port", config.PORT || 3000);
+app.set("port", config.DB_PORT || 5500);
 
 const api = config.API_URL;
 
