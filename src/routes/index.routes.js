@@ -1,13 +1,11 @@
 import { Router } from "express";
-
-//GRX: Config para variables de entorno
 import config from "../config/config.js";
 
-
-//GRX: auth Collections
 import authRoutes from "./auth.routes.js";
 
 import bdp_busquedasRoutes from "./bdp_busquedas.routes.js";
+
+import bdp_parametrosRoutes from "./bdp_parametros.routes.js";
 
 
 const routerAPI = (app) => {
@@ -20,6 +18,8 @@ const routerAPI = (app) => {
   router.use("/auth", authRoutes);
 
   router.use("/busquedas", bdp_busquedasRoutes);
+
+  router.use("/parametros", bdp_parametrosRoutes);
 
   return router;
 };
