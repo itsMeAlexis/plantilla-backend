@@ -1,21 +1,4 @@
-// Este archivo podría llamarse, por ejemplo, 'busqueda.model.js'
-// Reemplaza el contenido del archivo anterior por este.
-
 import { DataTypes } from 'sequelize';
-
-// Este es el objeto 'sequelize' que obtendrías al inicializar la conexión
-// en un archivo central de configuración de base de datos.
-// Ejemplo de 'database.js':
-//
-// import { Sequelize } from 'sequelize';
-// import config from './config.js';
-//
-// const sequelize = new Sequelize(config.DATABASE, config.DB_USER, config.DB_PASSWORD, {
-//   host: config.CLUSTER,
-//   dialect: 'postgres'
-// });
-//
-// export default sequelize;
 import sequelize from '../config/database.js'; // Asegúrate de que esta ruta es correcta
 
 /**
@@ -42,7 +25,7 @@ const bdp_busquedas = sequelize.define('BDP_BUSQUEDAS', {
   },
 
   fecha: {
-    type: DataTypes.DATE,
+    type: DataTypes.DATEONLY, // Utiliza DATEONLY para fechas sin hora
     allowNull: false,
     field: 'FECHA', // Especifica el nombre exacto de la columna en la base de datos
   },
