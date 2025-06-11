@@ -428,3 +428,93 @@ export const getDesaparecidosPorMunicipio = async (filtros) => {
     return FAIL(bitacora);
   }
 };
+
+export const getRelacionDesaparecidos = async (filtros) => {
+  let bitacora = BITACORA();
+  let data = DATA();
+  try {
+    bitacora.process = "Obtener relación de desaparecidos por municipio.";
+    data.method = "GET";
+    data.api = "/relacion-desaparecidos";
+
+    // 1. Obtener todos los municipios
+    const municipios = await bdp_cat_mun.findAll({
+      attributes: ['NOMBRE_MUN'],
+      raw: true
+    });
+    const municipiosNombres = municipios.map(m => m.NOMBRE_MUN);
+
+    // 2. Obtener el total de desaparecidos (para el porcentaje)
+    const totalDesaparecidos = await bdp_reg_victimas.count({
+      where: {
+        estatus_victima: { [Op.like]: 'DESAPARECIDA%' },
+        ...(filtros.municipio && { municipio_hechos: filtros.municipio }),
+        ...(filtros.localidad && { localidad_hechos: filtros.localidad }),
+        ...(filtros.sexo && { sexo_victima: filtros.sexo }),
+      }
+    });
+
+    // 3. Conteo por municipio de la lista oficial
+    const registros = await bdp_reg_victimas.findAll({
+      attributes: [
+        ['MPIO_HECHOS', 'municipio_nombre'],
+        [Sequelize.fn('COUNT', Sequelize.col('ID')), 'cantidad_victimas']
+      ],
+      where: {
+        estatus_victima: { [Op.notLike]: 'LOCALIZADA%' },
+        municipio_hechos: { [Op.in]: municipiosNombres },
+        ...(filtros.municipio && { municipio_hechos: filtros.municipio }),
+        ...(filtros.localidad && { localidad_hechos: filtros.localidad }),
+        ...(filtros.sexo && { sexo_victima: filtros.sexo }),
+      },
+      group: ['MPIO_HECHOS'],
+      raw: true
+    });
+
+    // 4. Conteo para "OTRAS ENTIDADES"
+    const otrasEntidadesCount = await bdp_reg_victimas.count({
+      where: {
+        estatus_victima: { [Op.notLike]: 'LOCALIZADA%' },
+        municipio_hechos: { [Op.notIn]: municipiosNombres },
+        ...(filtros.localidad && { localidad_hechos: filtros.localidad }),
+        ...(filtros.sexo && { sexo_victima: filtros.sexo }),
+      }
+    });
+
+    // 5. Armar el arreglo de respuesta
+    let respuesta = municipios.map(mun => {
+      const registro = registros.find(r => r.municipio_nombre === mun.NOMBRE_MUN);
+      const cantidad = registro ? parseInt(registro.cantidad_victimas) : 0;
+      const porcentaje = totalDesaparecidos > 0 ? Number(((cantidad / totalDesaparecidos) * 100).toFixed(2)) : 0;
+      return {
+        municipio_nombre: mun.NOMBRE_MUN,
+        cantidad_victimas: cantidad,
+        porcentaje
+      };
+    });
+
+    // Agregar "OTRAS ENTIDADES" si corresponde
+    if (otrasEntidadesCount > 0) {
+      respuesta.push({
+        municipio_nombre: 'OTRAS ENTIDADES',
+        cantidad_victimas: otrasEntidadesCount,
+        porcentaje: totalDesaparecidos > 0 ? Number(((otrasEntidadesCount / totalDesaparecidos) * 100).toFixed(2)) : 0
+      });
+    }
+
+    data.process = "Obtener relación de desaparecidos por municipio.";
+    data.messageDEV = "Relación de desaparecidos por municipio obtenida.";
+    data.messageUSR = "Relación de desaparecidos por municipio obtenida exitosamente.";
+    data.dataRes = respuesta;
+    bitacora = AddMSG(bitacora, data, "OK", 200, true);
+    return OK(bitacora);
+  } catch (error) {
+    if (!data.status) data.status = error.statusCode;
+    let { message } = error;
+    if (!data.messageDEV) data.messageDEV = message;
+    if (!data.messageUSR) data.messageUSR = message;
+    if (data.dataRes.length === 0) data.dataRes = error;
+    bitacora = AddMSG(bitacora, data, "FAIL");
+    return FAIL(bitacora);
+  }
+};

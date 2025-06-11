@@ -94,3 +94,22 @@ export const getDesaparecidosPorMunicipio = async (req, res, next) => {
     next(error);
   }
 }
+
+export const getRelacionDesaparecidos = async (req, res, next) => {
+  try {
+    //leer el token
+    // let token = req.headers.authorization;
+    // if (!token) {
+    //   return res.status(401).json({
+    //     message: "No se proporcionó un token",
+    //   });
+    // }
+    const filtros = req.query;
+    const busquedas = await bdp_reg_victimasServices.getRelacionDesaparecidos(filtros);
+    if (busquedas) {
+      return res.status(busquedas.status).json(busquedas);
+    }
+  } catch (error) {
+    next(error);
+  }
+}

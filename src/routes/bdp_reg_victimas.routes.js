@@ -26,6 +26,8 @@ router.get('/countDesaparecidas', bdp_reg_victimasController.getCountDesaparecid
 
 router.get('/desaparecidosMunicipio', bdp_reg_victimasController.getDesaparecidosPorMunicipio);
 
+router.get('/relacionDesaparecidos', bdp_reg_victimasController.getRelacionDesaparecidos);
+
 
 
 export default router;
