@@ -1,6 +1,7 @@
 import { DataTypes } from 'sequelize';
 import sequelize from '../config/database.js'; 
 import bdp_cat_mun from './bdp_cat_mun.model.js'; // Asegúrate de que esta ruta es correcta
+import e from 'express';
 
 const bdp_reg_victimas = sequelize.define('BDP_REG_VICTIMAS', {
 
@@ -197,6 +198,11 @@ const bdp_reg_victimas = sequelize.define('BDP_REG_VICTIMAS', {
     type: DataTypes.STRING(4000),
     allowNull: true, // Se permite que el tipo de búsqueda sea nulo/vacío
     field: 'LOC_HECHOS', // Especifica el nombre exacto de la columna en la base de datos
+  },
+  estado_hechos: {
+    type: DataTypes.STRING(50),
+    allowNull: true, // Se permite que el tipo de búsqueda sea nulo/vacío
+    field: 'EDO_HECHOS', // Especifica el nombre exacto de la columna en la base de datos
   },
 }, {
   // Opciones adicionales del modelo

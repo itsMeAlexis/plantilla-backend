@@ -475,17 +475,29 @@ export const getRelacionDesaparecidos = async (filtros) => {
     const otrasEntidadesCount = await bdp_reg_victimas.count({
       where: {
         estatus_victima: { [Op.notLike]: 'LOCALIZADA%' },
-        municipio_hechos: { [Op.notIn]: municipiosNombres },
+        [Op.or]: [
+          { municipio_hechos: { [Op.notIn]: municipiosNombres } },
+          { estado_hechos: { [Op.notILike]: 'NAYARIT' } },
+          {
+            [Op.and]: [
+              { municipio_hechos: null },
+              { estado_hechos: null }
+            ]
+          }
+        ],
         ...(filtros.localidad && { localidad_hechos: filtros.localidad }),
         ...(filtros.sexo && { sexo_victima: filtros.sexo }),
       }
     });
 
-    // 5. Armar el arreglo de respuesta
+    // 5. Sumar el total general (municipios + otras entidades)
+    const totalGeneral = registros.reduce((acc, curr) => acc + parseInt(curr.cantidad_victimas), 0) + otrasEntidadesCount;
+
+    // 6. Armar el arreglo de respuesta con el porcentaje correcto
     let respuesta = municipios.map(mun => {
       const registro = registros.find(r => r.municipio_nombre === mun.NOMBRE_MUN);
       const cantidad = registro ? parseInt(registro.cantidad_victimas) : 0;
-      const porcentaje = totalDesaparecidos > 0 ? Number(((cantidad / totalDesaparecidos) * 100).toFixed(2)) : 0;
+      const porcentaje = totalGeneral > 0 ? Number(((cantidad / totalGeneral) * 100).toFixed(2)) : 0;
       return {
         municipio_nombre: mun.NOMBRE_MUN,
         cantidad_victimas: cantidad,
@@ -498,9 +510,20 @@ export const getRelacionDesaparecidos = async (filtros) => {
       respuesta.push({
         municipio_nombre: 'OTRAS ENTIDADES',
         cantidad_victimas: otrasEntidadesCount,
-        porcentaje: totalDesaparecidos > 0 ? Number(((otrasEntidadesCount / totalDesaparecidos) * 100).toFixed(2)) : 0
+        porcentaje: totalGeneral > 0 ? Number(((otrasEntidadesCount / totalGeneral) * 100).toFixed(2)) : 0
       });
     }
+
+    //conteo para verificar si es 100%
+    const totalConteo = respuesta.reduce((acc, curr) => acc + curr.cantidad_victimas, 0);
+    const totalPorcentaje = respuesta.reduce((acc, curr) => acc + curr.porcentaje, 0);
+    // console.log("respuesta: ", totalPorcentaje);
+    // console.log("totalConteo: ", totalConteo);
+    respuesta.push({
+      municipio_nombre: 'TOTAL',
+      cantidad_victimas: totalConteo,
+      porcentaje: Number(totalPorcentaje.toFixed(2))
+    });
 
     data.process = "Obtener relación de desaparecidos por municipio.";
     data.messageDEV = "Relación de desaparecidos por municipio obtenida.";
