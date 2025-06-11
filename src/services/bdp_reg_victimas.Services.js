@@ -22,7 +22,7 @@ export const getRegVictimas = async () => {
   try {
     bitacora.process = "Obtener todos los parametros.";
     data.method = "GET";
-    data.api = "/";
+    data.api = "/countNacional";
     //Obtener todas las busquedas usando sequelize
     const parametros = await bdp_reg_victimas.findAll();
 
@@ -55,7 +55,7 @@ export const getCountNacionalRegVictimas = async (filtros) => {
   try {
     bitacora.process = "Obtener conteo de registros.";
     data.method = "GET";
-    data.api = "/";
+    data.api = "/countLocalizadas";
     // 1. Construir la cláusula 'where' dinámicamente
     // Esto replica la lógica de '(columna = :PARAM or :PARAM is null)'
     const whereClause = {};
@@ -131,7 +131,7 @@ export const getCountLocalizadasRegVictimas = async (filtros) => {
   try {
     bitacora.process = "Obtener conteo de registros localizados.";
     data.method = "GET";
-    data.api = "/";
+    data.api = "/countDesaparecidas";
     // 1. Construir la cláusula 'where' dinámicamente
     // Esto replica la lógica de '(columna = :PARAM or :PARAM is null)'
     const whereClause = {};
@@ -251,7 +251,7 @@ export const getCountDesaparecidasRegVictimas = async (filtros) => {
   try {
     bitacora.process = "Obtener conteo de registros localizados.";
     data.method = "GET";
-    data.api = "/";
+    data.api = "/desaparecidosMunicipio";
     // 1. Construir la cláusula 'where' dinámicamente
     // Esto replica la lógica de '(columna = :PARAM or :PARAM is null)'
     const whereClause = {};
@@ -435,7 +435,7 @@ export const getRelacionDesaparecidos = async (filtros) => {
   try {
     bitacora.process = "Obtener relación de desaparecidos por municipio.";
     data.method = "GET";
-    data.api = "/relacion-desaparecidos";
+    data.api = "/relacionDesaparecidos";
 
     // 1. Obtener todos los municipios
     const municipios = await bdp_cat_mun.findAll({
