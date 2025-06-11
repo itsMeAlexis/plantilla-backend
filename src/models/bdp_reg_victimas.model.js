@@ -1,5 +1,6 @@
 import { DataTypes } from 'sequelize';
 import sequelize from '../config/database.js'; 
+import bdp_cat_mun from './bdp_cat_mun.model.js'; // Asegúrate de que esta ruta es correcta
 
 const bdp_reg_victimas = sequelize.define('BDP_REG_VICTIMAS', {
 
@@ -212,5 +213,7 @@ const bdp_reg_victimas = sequelize.define('BDP_REG_VICTIMAS', {
   // En este caso, ya los hemos definido con snake_case.
   underscored: true,
 });
+
+bdp_reg_victimas.belongsTo(bdp_cat_mun, { foreignKey: 'municipio_hechos', targetKey: 'nombre_municipio' });
 
 export default bdp_reg_victimas;

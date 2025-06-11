@@ -20,6 +20,12 @@ router.get('/', bdp_reg_victimasController.getRegVictimas);
 
 router.get('/countNacional', bdp_reg_victimasController.getCountNacionalRegVictimas);
 
+router.get('/countLocalizadas', bdp_reg_victimasController.getCountLocalizadasRegVictimas);
+
+router.get('/countDesaparecidas', bdp_reg_victimasController.getCountDesaparecidasRegVictimas);
+
+router.get('/desaparecidosMunicipio', bdp_reg_victimasController.getDesaparecidosPorMunicipio);
+
 
 
 export default router;
