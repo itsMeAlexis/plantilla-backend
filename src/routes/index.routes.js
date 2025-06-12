@@ -9,6 +9,8 @@ import bdp_parametrosRoutes from "./bdp_parametros.routes.js";
 
 import bdp_reg_victimasRoutes from "./bdp_reg_victimas.routes.js";
 
+import bdp_prereg_victimasRoutes from "./bdp_prereg_victimas.routes.js";
+
 
 const routerAPI = (app) => {
   const router = Router();
@@ -24,6 +26,8 @@ const routerAPI = (app) => {
   router.use("/parametros", bdp_parametrosRoutes);
 
   router.use("/regvictimas", bdp_reg_victimasRoutes);
+
+  router.use("/preregvictimas", bdp_prereg_victimasRoutes);
 
   return router;
 };
