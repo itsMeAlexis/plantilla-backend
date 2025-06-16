@@ -23,7 +23,7 @@ export const getRegVictimas = async (query) => {
   try {
     bitacora.process = "Obtener todas las victimas.";
     data.method = "GET";
-    data.api = "/countNacional";
+    data.api = "/";
     //Obtener todas las busquedas usando sequelize
     const registros = await bdp_reg_victimas.findAll({
       numero: start,
