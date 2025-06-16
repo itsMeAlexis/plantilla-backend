@@ -13,6 +13,10 @@ import bdp_prereg_victimasRoutes from "./bdp_prereg_victimas.routes.js";
 
 import bdp_nacionalidadesRoutes from "./bdp_cat_nacionalidades.routes.js";
 
+import bdp_edo_civil from "./bdp_edo_civil.routes.js";
+
+import bdp_cat_escolaridadesRoutes from "./bdp_cat_escolaridades.routes.js";
+
 
 const routerAPI = (app) => {
   const router = Router();
@@ -32,6 +36,10 @@ const routerAPI = (app) => {
   router.use("/preregvictimas", bdp_prereg_victimasRoutes);
 
   router.use("/nacionalidades", bdp_nacionalidadesRoutes);
+
+  router.use("/edocivil", bdp_edo_civil);
+
+  router.use("/escolaridades", bdp_cat_escolaridadesRoutes);
 
   return router;
 };

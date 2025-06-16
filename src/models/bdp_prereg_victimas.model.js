@@ -1,6 +1,7 @@
-import { DataTypes } from 'sequelize';
+import { BelongsTo, DataTypes } from 'sequelize';
 import sequelize from '../config/database.js'; 
 import bdp_cat_mun from './bdp_cat_mun.model.js'; // Asegúrate de que esta ruta es correcta
+import bdp_cat_nacionalidades from './bdp_cat_nacionalidades.model.js';
 import e from 'express';
 
 const bdp_prereg_victimas = sequelize.define('BDP_PREREG_VICTIMAS', {
@@ -315,5 +316,6 @@ const bdp_prereg_victimas = sequelize.define('BDP_PREREG_VICTIMAS', {
 });
 
 // bdp_prereg_victimas.belongsTo(bdp_cat_mun, { foreignKey: 'municipio_hechos', targetKey: 'nombre_municipio' });
+bdp_prereg_victimas.belongsTo(bdp_cat_nacionalidades, { foreignKey: 'nacionalidad_victima', targetKey: 'id_nacionalidad' });
 
 export default bdp_prereg_victimas;
