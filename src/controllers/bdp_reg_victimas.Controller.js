@@ -10,7 +10,8 @@ export const getRegVictimas = async (req, res, next) => {
     //     message: "No se proporcionó un token",
     //   });
     // }
-    const busquedas = await bdp_reg_victimasServices.getRegVictimas();
+    const query = req.query;
+    const busquedas = await bdp_reg_victimasServices.getRegVictimas(query);
     if (busquedas) {
       return res.status(busquedas.status).json(busquedas);
     }
