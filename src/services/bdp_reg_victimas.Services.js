@@ -21,26 +21,26 @@ export const getRegVictimas = async (query) => {
   let data = DATA();
   const { start, length } = query;
   try {
-    bitacora.process = "Obtener todos los parametros.";
+    bitacora.process = "Obtener todas las victimas.";
     data.method = "GET";
     data.api = "/countNacional";
     //Obtener todas las busquedas usando sequelize
-    const parametros = await bdp_reg_victimas.findAll({
+    const registros = await bdp_reg_victimas.findAll({
       numero: start,
       limit: length
     });
 
-    if (!parametros) {
+    if (!registros) {
       data.status = 404;
-      data.messageDEV = "No se encontraron parametros.";
-      data.messageUSR = "No se encontraron parametros.";
+      data.messageDEV = "No se encontraron registros.";
+      data.messageUSR = "No se encontraron registros.";
       throw Error(data.messageDEV);
     }
-    // console.log("parametros: ", parametros);
-    data.process = "Obtener todos los parametros.";
-    data.messageDEV = "Obtener todos los parametros.";
-    data.messageUSR = "Los parametros fueron obtenidos Exitosamente.";
-    data.dataRes = parametros;
+    // console.log("registros: ", registros);
+    data.process = "Obtener todos los registros.";
+    data.messageDEV = "Obtener todos los registros.";
+    data.messageUSR = "Los registros fueron obtenidos Exitosamente.";
+    data.dataRes = registros;
     bitacora = AddMSG(bitacora, data, "OK", 200, true);
     return OK(bitacora);
   } catch (error) {
