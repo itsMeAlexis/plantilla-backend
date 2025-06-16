@@ -16,15 +16,19 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { Op, Sequelize } from 'sequelize';
 
-export const getRegVictimas = async () => {
+export const getRegVictimas = async (query) => {
   let bitacora = BITACORA();
   let data = DATA();
+  const { start, length } = query;
   try {
     bitacora.process = "Obtener todos los parametros.";
     data.method = "GET";
     data.api = "/countNacional";
     //Obtener todas las busquedas usando sequelize
-    const parametros = await bdp_reg_victimas.findAll();
+    const parametros = await bdp_reg_victimas.findAll({
+      numero: start,
+      limit: length
+    });
 
     if (!parametros) {
       data.status = 404;
