@@ -25,8 +25,10 @@ export const getRegVictimas = async (query) => {
     data.method = "GET";
     data.api = "/";
     //Obtener todas las busquedas usando sequelize
+    const totalRegistros = await bdp_reg_victimas.count();
+    // console.log(totalRegistros)
     const registros = await bdp_reg_victimas.findAll({
-      numero: start,
+      offset: start,
       limit: length
     });
 
@@ -40,7 +42,7 @@ export const getRegVictimas = async (query) => {
     data.process = "Obtener todos los registros.";
     data.messageDEV = "Obtener todos los registros.";
     data.messageUSR = "Los registros fueron obtenidos Exitosamente.";
-    data.dataRes = registros;
+    data.dataRes = {data: registros, recordsTotal: totalRegistros};
     bitacora = AddMSG(bitacora, data, "OK", 200, true);
     return OK(bitacora);
   } catch (error) {
