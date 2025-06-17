@@ -198,6 +198,64 @@ export const getCountLocalizadasRegVictimas = async (filtros) => {
       }
     });
 
+    const totalHombresLocalizadosConVida = await bdp_reg_victimas.count({
+      where: {
+        // ...whereClause,
+        estatus_victima: {
+          [Op.like]: 'LOCALIZADA CON%'
+        },
+        sexo_victima: {
+          [Op.like]: 'H%'
+        }
+      }
+    });
+
+    
+    const totalMujeresLocalizadasConVida = await bdp_reg_victimas.count({
+      where: {
+        // ...whereClause,
+        estatus_victima: {
+          [Op.like]: 'LOCALIZADA CON%'
+        },
+        sexo_victima: {
+          [Op.like]: 'M%'
+        }
+      }
+    });
+
+    const totalHombresLocalizadosSinVida = await bdp_reg_victimas.count({
+      where: {
+        // ...whereClause,
+        estatus_victima: {
+          [Op.like]: 'LOCALIZADA SIN%'
+        },
+        sexo_victima: {
+          [Op.like]: 'H%'
+        }
+      }
+    });
+    
+    const totalMujeresLocalizadasSinVida = await bdp_reg_victimas.count({
+      where: {
+        // ...whereClause,
+        estatus_victima: {
+          [Op.like]: 'LOCALIZADA SIN%'
+        },
+        sexo_victima: {
+          [Op.like]: 'M%'
+        }
+      }
+    });
+
+    const totalPersonasLocalizadasSinGenerales = await bdp_reg_victimas.count({
+      where: {
+        // ...whereClause,
+        estatus_victima: {
+          [Op.like]: 'LOCALIZADA'
+        },
+      }
+    })
+
     console.log("totalCoincidencias: ", totalCoincidencias);
     if (!totalCoincidencias) {
       data.status = 404;
@@ -231,6 +289,11 @@ export const getCountLocalizadasRegVictimas = async (filtros) => {
       cantidad_sin_vida: totalSinVida.toLocaleString('es-MX'),
       cantidad_hombres: totalHombresLocalizados.toLocaleString('es-MX'),
       cantidad_mujeres: totalMujeresLocalizadas.toLocaleString('es-MX'),
+      cantidad_hombres_con_vida: totalHombresLocalizadosConVida.toLocaleString('es-MX'),
+      cantidad_mujeres_con_vida: totalMujeresLocalizadasConVida.toLocaleString('es-MX'),
+      cantidad_hombres_sin_vida: totalHombresLocalizadosSinVida.toLocaleString('es-MX'),
+      cantidad_mujeres_sin_vida: totalMujeresLocalizadasSinVida.toLocaleString('es-MX'),
+      cantidad_sin_generales: totalPersonasLocalizadasSinGenerales.toLocaleString('es-MX'),
       porcentaje_total: porcentaje
     };
     // console.log("resultado: ", resultado);
