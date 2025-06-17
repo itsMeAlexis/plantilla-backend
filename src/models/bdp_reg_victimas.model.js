@@ -19,7 +19,7 @@ const bdp_reg_victimas = sequelize.define('BDP_REG_VICTIMAS', {
   },
 
   fecha_registro: {
-    type: DataTypes.DATEONLY,
+    type: DataTypes.STRING(50),
     allowNull: true, // Se permite que el lugar sea nulo/vacío
     field: 'FEC_REG', // Especifica el nombre exacto de la columna en la base de datos
   },
@@ -40,17 +40,17 @@ const bdp_reg_victimas = sequelize.define('BDP_REG_VICTIMAS', {
     field: 'NOMBRE_VIC', // Especifica el nombre exacto de la columna en la base de datos
   },
   appaterno_victima: {
-    type: DataTypes.STRING(255),
+    type: DataTypes.STRING(50),
     allowNull: true, // Se permite que el tipo de búsqueda sea nulo/vacío
     field: 'APPATERNO_VIC', // Especifica el nombre exacto de la columna en la base de datos
   },
   apmaterno_victima: {
-    type: DataTypes.STRING(255),
+    type: DataTypes.STRING(50),
     allowNull: true, // Se permite que el tipo de búsqueda sea nulo/vacío
     field: 'APMATERNO_VIC', // Especifica el nombre exacto de la columna en la base de datos
   },
   alias_victima: {
-    type: DataTypes.STRING(255),
+    type: DataTypes.STRING(50),
     allowNull: true, // Se permite que el tipo de búsqueda sea nulo/vacío
     field: 'ALIAS_VIC', // Especifica el nombre exacto de la columna en la base de datos
   },
@@ -75,12 +75,12 @@ const bdp_reg_victimas = sequelize.define('BDP_REG_VICTIMAS', {
     field: 'ESCOLARIDAD_VIC', // Especifica el nombre exacto de la columna en la base de datos
   },
   ocupacion_victima: {
-    type: DataTypes.STRING(50),
+    type: DataTypes.STRING(150),
     allowNull: true, // Se permite que el tipo de búsqueda sea nulo/vacío
     field: 'OCUPACION_VIC', // Especifica el nombre exacto de la columna en la base de datos
   },
   curp_victima: {
-    type: DataTypes.STRING(18),
+    type: DataTypes.STRING(50),
     allowNull: true, // Se permite que el tipo de búsqueda sea nulo/vacío
     field: 'CURP_VIC', // Especifica el nombre exacto de la columna en la base de datos
   },
@@ -90,7 +90,7 @@ const bdp_reg_victimas = sequelize.define('BDP_REG_VICTIMAS', {
     field: 'EDAD_VIC', // Especifica el nombre exacto de la columna en la base de datos
   },
   fecha_nacimiento_victima: {
-    type: DataTypes.DATEONLY,
+    type: DataTypes.STRING(50),
     allowNull: true, // Se permite que el tipo de búsqueda sea nulo/vacío
     field: 'FECNAC_VIC', // Especifica el nombre exacto de la columna en la base de datos
   },
@@ -165,12 +165,12 @@ const bdp_reg_victimas = sequelize.define('BDP_REG_VICTIMAS', {
     field: 'CURP_QREP', // Especifica el nombre exacto de la columna en la base de datos
   },
   edad_reportante: {
-    type: DataTypes.INTEGER,
+    type: DataTypes.STRING(50),
     allowNull: true, // Se permite que el tipo de búsqueda sea nulo/vacío
     field: 'EDAD_QREP', // Especifica el nombre exacto de la columna en la base de datos
   },
   fecha_nacimiento_reportante: {
-    type: DataTypes.DATEONLY,
+    type: DataTypes.STRING(50),
     allowNull: true, // Se permite que el tipo de búsqueda sea nulo/vacío
     field: 'FEC_NAC_QREP', // Especifica el nombre exacto de la columna en la base de datos
   },
@@ -194,16 +194,147 @@ const bdp_reg_victimas = sequelize.define('BDP_REG_VICTIMAS', {
     allowNull: true, // Se permite que el tipo de búsqueda sea nulo/vacío
     field: 'MPIO_HECHOS', // Especifica el nombre exacto de la columna en la base de datos
   },
-  localidad_hechos: {
+  media_filiacion: {
+    type: DataTypes.STRING(1000),
+    allowNull: true, // Se permite que el tipo de búsqueda sea nulo/vacío
+    field: 'MEDIA_FILIACION', // Especifica el nombre exacto de la columna en la base de datos
+  },
+  senas_particulares: {
     type: DataTypes.STRING(4000),
     allowNull: true, // Se permite que el tipo de búsqueda sea nulo/vacío
-    field: 'LOC_HECHOS', // Especifica el nombre exacto de la columna en la base de datos
+    field: 'SENAS_PARTICULARES', // Especifica el nombre exacto de la columna en la base de datos
+  },
+  vestimenta: {
+    type: DataTypes.STRING(255),
+    allowNull: true, // Se permite que el tipo de búsqueda sea nulo/vacío
+    field: 'VESTIMENTA', // Especifica el nombre exacto de la columna en la base de datos
+  },
+  fecha_localizacion: {
+    type: DataTypes.STRING(50),
+    allowNull: true, // Se permite que el tipo de búsqueda sea nulo/vacío
+    field: 'FEC_LOCALIZACION', // Especifica el nombre exacto de la columna en la base de datos
+  },
+  fecha_hechos: {
+    type: DataTypes.STRING(50),
+    allowNull: true, // Se permite que el tipo de búsqueda sea nulo/vacío
+    field: 'FEC_HECHOS', // Especifica el nombre exacto de la columna en la base de datos
+  },
+  fecha_reporte: {
+    type: DataTypes.STRING(50),
+    allowNull: true, // Se permite que el tipo de búsqueda sea nulo/vacío
+    field: 'FEC_REPORTE', // Especifica el nombre exacto de la columna en la base de datos
+  },
+  descripcion_hechos: {
+    type: DataTypes.STRING(4000),
+    allowNull: true, // Se permite que el tipo de búsqueda sea nulo/vacío
+    field: 'DESCRIP_HECHOS', // Especifica el nombre exacto de la columna en la base de datos
   },
   estado_hechos: {
     type: DataTypes.STRING(50),
     allowNull: true, // Se permite que el tipo de búsqueda sea nulo/vacío
     field: 'EDO_HECHOS', // Especifica el nombre exacto de la columna en la base de datos
   },
+  municipio_hechos: {
+    type: DataTypes.STRING(50),
+    allowNull: true, // Se permite que el tipo de búsqueda sea nulo/vacío
+    field: 'MPIO_HECHOS', // Especifica el nombre exacto de la columna en la base de datos
+  },
+  localidad_hechos: {
+    type: DataTypes.STRING(4000),
+    allowNull: true, // Se permite que el tipo de búsqueda sea nulo/vacío
+    field: 'LOC_HECHOS', // Especifica el nombre exacto de la columna en la base de datos
+  },
+  tecnico_registro: {
+    type: DataTypes.STRING(50),
+    allowNull: true, // Se permite que el tipo de búsqueda sea nulo/vacío
+    field: 'TEC_REG', // Especifica el nombre exacto de la columna en la base de datos
+  },
+  fecha_registro2: {
+    type: DataTypes.STRING(50),
+    allowNull: true, // Se permite que el tipo de búsqueda sea nulo/vacío
+    field: 'FEC_REG2', // Especifica el nombre exacto de la columna en la base de datos
+  },
+  tecnico_actualizacion: {
+    type: DataTypes.STRING(50),
+    allowNull: true, // Se permite que el tipo de búsqueda sea nulo/vacío
+    field: 'TEC_ACT', // Especifica el nombre exacto de la columna en la base de datos
+  },
+  fecha_actualizacion: {
+    type: DataTypes.STRING(50),
+    allowNull: true, // Se permite que el tipo de búsqueda sea nulo/vacío
+    field: 'FEC_ACT', // Especifica el nombre exacto de la columna en la base de datos
+  },
+  anio:{
+    type: DataTypes.INTEGER,
+    allowNull: true, // Se permite que el tipo de búsqueda sea nulo/vacío
+    field: 'ANIO', // Especifica el nombre exacto de la columna en la base de datos
+  },
+  img:{
+    type: DataTypes.BLOB,
+    allowNull: true, // Se permite que el tipo de búsqueda sea nulo/vacío
+    field: 'IMG', // Especifica el nombre exacto de la columna en la base de datos
+  },
+  img_nombre: {
+    type: DataTypes.STRING(70),
+    allowNull: true, // Se permite que el tipo de búsqueda sea nulo/vacío
+    field: 'IMG_NOM', // Especifica el nombre exacto de la columna en la base de datos
+  },
+  mimetype:{
+    type: DataTypes.STRING(30),
+    allowNull: true, // Se permite que el tipo de búsqueda sea nulo/vacío
+    field: 'MIMETYPE', // Especifica el nombre exacto de la columna en la base de datos
+  },
+  img_visible:{
+    type: DataTypes.STRING(1),
+    allowNull: true, // Se permite que el tipo de búsqueda sea nulo/vacío
+    field: 'IMG_VISIBLE', // Especifica el nombre exacto de la columna en la base de datos
+  },
+  departamento_reporte_victima:{
+    type: DataTypes.STRING(255),
+    allowNull: true, // Se permite que el tipo de búsqueda sea nulo/vacío
+    field: 'DEP_REP_VIC', // Especifica el nombre exacto de la columna en la base de datos
+  },
+  autoriza_info_pbdp:{
+    type: DataTypes.STRING(1),
+    allowNull: true, // Se permite que el tipo de búsqueda sea nulo/vacío
+    field: 'AUTORIZA_INFO_PBDP', // Especifica el nombre exacto de la columna en la base de datos
+  },
+  autoriza_info_pub:{
+    type: DataTypes.STRING(1),
+    allowNull: true, // Se permite que el tipo de búsqueda sea nulo/vacío
+    field: 'AUTORIZA_INFO_PUB', // Especifica el nombre exacto de la columna en la base de datos
+  },
+  anonima_reportante:{
+    type: DataTypes.STRING(1),
+    allowNull: true, // Se permite que el tipo de búsqueda sea nulo/vacío
+    field: 'ANONIMA_Q_REP', // Especifica el nombre exacto de la columna en la base de datos
+  },
+  img_cedula:{
+    type: DataTypes.BLOB,
+    allowNull: true, // Se permite que el tipo de búsqueda sea nulo/vacío
+    field: 'IMG_CEDULA', // Especifica el nombre exacto de la columna en la base de datos
+  },
+  cedula_mimetype:{
+    type: DataTypes.STRING(70),
+    allowNull: true, // Se permite que el tipo de búsqueda sea nulo/vacío
+    field: 'CEDULA_MIMETYPE', // Especifica el nombre exacto de la columna en la base de datos
+  },
+  img_cedula_nombre: {
+    type: DataTypes.STRING(70),
+    allowNull: true, // Se permite que el tipo de búsqueda sea nulo/vacío
+    field: 'IMG_CEDULA_NOM', // Especifica el nombre exacto de la columna en la base de datos
+  },
+  id_preregistro: {
+    type: DataTypes.INTEGER,
+    allowNull: true, // Se permite que el tipo de búsqueda sea nulo/vacío
+    field: 'ID_PRE', // Especifica el nombre exacto de la columna en la base de datos
+  },
+  etnia_victima:{
+    type: DataTypes.STRING(35),
+    allowNull: true, // Se permite que el tipo de búsqueda sea nulo/vacío
+    field: 'ETNIA_VIC', // Especifica el nombre exacto de la columna en la base de datos
+  }
+  
 }, {
   // Opciones adicionales del modelo
 
