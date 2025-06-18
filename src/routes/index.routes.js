@@ -17,6 +17,8 @@ import bdp_edo_civil from "./bdp_edo_civil.routes.js";
 
 import bdp_cat_escolaridadesRoutes from "./bdp_cat_escolaridades.routes.js";
 
+import bdp_colectivos from "./bdp_colectivos.routes.js";
+
 
 const routerAPI = (app) => {
   const router = Router();
@@ -40,6 +42,8 @@ const routerAPI = (app) => {
   router.use("/edocivil", bdp_edo_civil);
 
   router.use("/escolaridades", bdp_cat_escolaridadesRoutes);
+
+  router.use("/colectivos", bdp_colectivos);
 
   return router;
 };
