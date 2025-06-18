@@ -7,23 +7,13 @@ import {
   AddMSG,
   FAIL,
 } from "../middleware/respPWA.handler.js";
+import dayjs from 'dayjs';
 import jwt from "jsonwebtoken";
 import config from "../config/config.js";
 import { transporter } from '../config/nodemailer.js';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { Op, Sequelize } from 'sequelize';
-// Crea un formateador para la zona horaria y el formato de México
-const formatoMazatlan = new Intl.DateTimeFormat('es-MX', {
-  timeZone: 'America/Mazatlan',
-  year: 'numeric',
-  month: '2-digit',
-  day: '2-digit',
-  hour: '2-digit',
-  minute: '2-digit',
-  second: '2-digit',
-  hour12: false // Usa formato de 24 horas
-});
 
 
 export const getPreregVictimas = async () => {
@@ -74,13 +64,12 @@ export const createPreregVictimas = async (body) => {
     // const decoded = jwt.verify(token, config.JWT_SECRET);
     // body.usr_registro = decoded.username;
     //Fecha de registro
-    
+    const ahoraEnMazatlan = dayjs().tz('America/Mazatlan');
+    // Es mejor usar un formato estándar y ordenable (ISO 8601)
+    body.fecha_registro = ahoraEnMazatlan.format('YYYY-MM-DD HH:mm:ss');
 
-    // 1. Obtiene la fecha y hora actual
-    const ahora = new Date();
-    // 2. Formatea la fecha y la asigna
-    //    Esto crea un string con el formato "DD/MM/YYYY, HH:mm:ss"
-    body.fecha_registro = formatoMazatlan.format(ahora);
+    body.fecha_hechos = dayjs(body.fecha_hechos).tz('America/Mazatlan').format('YYYY-MM-DD HH:mm:ss');
+
     const preregistro = await bdp_prereg_victimas.create(body);
     console.log("preregistro: ", preregistro);
     if (!preregistro) {

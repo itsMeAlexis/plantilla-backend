@@ -8,6 +8,13 @@ import fs from "fs";
 import path from "path";
 import { fileURLToPath } from 'url';
 import os from "os-utils";
+import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc.js';
+import timezone from 'dayjs/plugin/timezone.js';
+
+// Extiende dayjs con los plugins. Haz esto una sola vez en tu app (ej. en App.js).
+dayjs.extend(utc);
+dayjs.extend(timezone);
 
 const app = express();
 
