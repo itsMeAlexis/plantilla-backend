@@ -13,15 +13,22 @@ import { transporter } from '../config/nodemailer.js';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
-export const getBusquedas = async (id) => {
+export const getBusquedas = async (query) => {
   let bitacora = BITACORA();
   let data = DATA();
+  const { start, length } = query;
   try {
     bitacora.process = "Obtener todas las busquedas.";
     data.method = "GET";
     data.api = "/";
+    const totalRegistros = await bdp_busquedas.count();
     //Obtener todas las busquedas usando sequelize
-    const busquedas = await bdp_busquedas.findAll();
+    const busquedas = await bdp_busquedas.findAll(
+      {
+        offset: start,
+        limit: length
+      }
+    );
 
     if (!busquedas) {
       data.status = 404;
@@ -33,7 +40,7 @@ export const getBusquedas = async (id) => {
     data.process = "Obtener todas las busquedas.";
     data.messageDEV = "Obtener todas las busquedas.";
     data.messageUSR = "Las busquedas fueron obtenidas Exitosamente.";
-    data.dataRes = busquedas;
+    data.dataRes = { data: busquedas , recordsTotal: totalRegistros };
     bitacora = AddMSG(bitacora, data, "OK", 200, true);
     return OK(bitacora);
   } catch (error) {

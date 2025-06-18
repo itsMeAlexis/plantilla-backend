@@ -10,7 +10,8 @@ export const getBusquedas = async (req, res, next) => {
     //     message: "No se proporcionó un token",
     //   });
     // }
-    const busquedas = await bdp_busquedasServices.getBusquedas();
+    const query = req.query;
+    const busquedas = await bdp_busquedasServices.getBusquedas(query);
     if (busquedas) {
       return res.status(busquedas.status).json(busquedas);
     }
