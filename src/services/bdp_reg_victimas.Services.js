@@ -19,17 +19,43 @@ import { Op, Sequelize } from 'sequelize';
 export const getRegVictimas = async (query) => {
   let bitacora = BITACORA();
   let data = DATA();
-  const { start, length } = query;
+  const { start, length, search } = query;
   try {
     bitacora.process = "Obtener todas las victimas.";
     data.method = "GET";
     data.api = "/";
+    let queryParams = {};
+    let searchMatch = {};
+    //Busqueda
+    if (search && search !== "") {
+      const searchParts = search.trim().split(/\s+/);
+      // Para cada palabra, busca en los campos indicados
+      const andConditions = searchParts.map(part => ({
+        [Op.or]: [
+          // { NombreCompleto: { [Op.iLike]: `%${part}%` } },
+          { expediente: { [Op.iLike]: `%${part}%` } },
+          { nombre_victima: { [Op.iLike]: `%${part}%` } },
+          { appaterno_victima: { [Op.iLike]: `%${part}%` } },
+          { apmaterno_victima: { [Op.iLike]: `%${part}%` } }
+        ]
+      }));
+
+      // El where final
+      searchMatch = {
+        [Op.and]: andConditions
+      };
+    }
     //Obtener todas las busquedas usando sequelize
-    const totalRegistros = await bdp_reg_victimas.count();
+    const totalRegistros = await bdp_reg_victimas.count({
+      where: searchMatch
+    });
     // console.log(totalRegistros)
+    //Paginacion
+    queryParams.offset = start;
+    queryParams.limit = length;
     const registros = await bdp_reg_victimas.findAll({
-      offset: start,
-      limit: length
+      where: searchMatch,
+      ...queryParams
     });
 
     if (!registros) {
@@ -77,7 +103,7 @@ export const getCountNacionalRegVictimas = async (filtros) => {
     });
     
     
-    console.log("totalCoincidencias: ", totalCoincidencias);
+    // console.log("totalCoincidencias: ", totalCoincidencias);
     if (!totalCoincidencias) {
       data.status = 404;
       data.messageDEV = "No se encontraron registros.";
@@ -256,7 +282,7 @@ export const getCountLocalizadasRegVictimas = async (filtros) => {
       }
     })
 
-    console.log("totalCoincidencias: ", totalCoincidencias);
+    // console.log("totalCoincidencias: ", totalCoincidencias);
     if (!totalCoincidencias) {
       data.status = 404;
       data.messageDEV = "No se encontraron registros localizados.";
@@ -266,7 +292,7 @@ export const getCountLocalizadasRegVictimas = async (filtros) => {
 
     const totalVicEstado = await bdp_reg_victimas.count({
     })
-    console.log("totalVicEstado: ", totalVicEstado);
+    // console.log("totalVicEstado: ", totalVicEstado);
     if (!totalVicEstado) {
       data.status = 404;
       data.messageDEV = "No se encontraron parametros de total de victimas a nivel estatal.";
