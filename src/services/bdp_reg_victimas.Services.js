@@ -623,7 +623,7 @@ export const getRelacionDesaparecidos = async (filtros) => {
     data.process = "Obtener relación de desaparecidos por municipio.";
     data.messageDEV = "Relación de desaparecidos por municipio obtenida.";
     data.messageUSR = "Relación de desaparecidos por municipio obtenida exitosamente.";
-    data.dataRes = respuesta;
+    data.dataRes = {data: respuesta};
     bitacora = AddMSG(bitacora, data, "OK", 200, true);
     return OK(bitacora);
   } catch (error) {
