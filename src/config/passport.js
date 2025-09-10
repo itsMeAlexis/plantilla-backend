@@ -1,21 +1,22 @@
 import passport from "passport";
 import { Strategy as LocalStrategy } from "passport-local";
 import { Strategy as JwtStrategy, ExtractJwt } from "passport-jwt";
-import Usuarios from "../models/bdp_busquedas.model.js";
+import Usuarios from "../models/PD_usuarios.model.js";
 
+// Estrategia Local para autenticación con usuario y contraseña
 passport.use(
   new LocalStrategy(
     {
       usernameField: "usuario",
-      passwordField: "contrasena",
+      passwordField: "password",
     },
-    async (usuario, contrasena, done) => {
+    async (usuario, password, done) => {
       try {
         const user = await Usuarios.findOne({ where: { usuario } });
         if (!user) {
-          return done(null, false, { message: "Usuarios no encontrado" });
+          return done(null, false, { message: "Usuario no encontrado" });
         }
-        const isMatch = await user.validarContrasena(contrasena);
+        const isMatch = await user.validarContrasena(password);
         if (!isMatch) {
           return done(null, false, { message: "Contraseña incorrecta" });
         }
@@ -35,7 +36,7 @@ const opts = {
 passport.use(
   new JwtStrategy(opts, async (jwt_payload, done) => {
     try {
-      const user = await Usuarios.findByPk(jwt_payload.id);
+      const user = await Usuarios.findByPk(jwt_payload.IdUsuario);
       if (user) {
         return done(null, user);
       }

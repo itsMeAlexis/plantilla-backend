@@ -8,11 +8,11 @@ import config from './config.js';
  * por todos los modelos de la aplicación.
  */
 const sequelize = new Sequelize(
-  config.DATABASE,      // Nombre de la base de datos (ej: 'mi_base_de_datos')
-  config.DB_USER,       // Usuario de la base de datos (ej: 'postgres_user')
-  config.DB_PASSWORD,   // Contraseña del usuario
+  config.DATABASE_NAME,      // Nombre de la base de datos (ej: 'mi_base_de_datos')
+  config.DATABASE_USER,       // Usuario de la base de datos (ej: 'postgres_user')
+  config.DATABASE_PASSWORD,   // Contraseña del usuario
   {
-    host: config.CLUSTER, // Host donde se encuentra la base de datos (ej: 'localhost' o una IP)
+    host: config.DATABASE_HOST, // Host donde se encuentra la base de datos (ej: 'localhost' o una IP)
     dialect: 'postgres',  // Le indicamos a Sequelize que estamos usando PostgreSQL
 
     // Opcional: Desactiva los logs de cada consulta SQL en la consola.
