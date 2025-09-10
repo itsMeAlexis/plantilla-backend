@@ -1,4 +1,5 @@
-import Usuarios from "../models/bdp_busquedas.model.js";
+import Usuarios from "../models/pd_usuarios.model.js";
+import Roles from "../models/pd_roles.model.js";
 import { BITACORA, DATA, OK, AddMSG, FAIL } from '../middleware/respPWA.handler.js';
 import jwt from "jsonwebtoken";
 import config from "../config/config.js";
@@ -25,7 +26,7 @@ export const register = async (body) => {
       data.process = "Registrar un nuevo usuario.";
       data.messageDEV = "Se creo el usuario con exito.";
       data.messageUSR = "Se creo el usuario con exito.";
-      data.dataRes = user;
+      data.dataRes = {user};
       bitacora = AddMSG(bitacora, data, "OK", 200, true);  
       return OK(bitacora);
   } catch (error) {
@@ -42,7 +43,9 @@ export const register = async (body) => {
 export const login = async (body) => {
   let bitacora = BITACORA();
   let data = DATA();
+  const intentos = 5;
   const credentials = Buffer.from(body.credentials, "base64").toString("utf8");
+  // console.log(credentials)
   const [Login, Password] = credentials.split(":");
 
   try {
@@ -50,43 +53,26 @@ export const login = async (body) => {
     data.method = 'POST';
     data.api = '/login';
 
-    const resultado = await Usuarios.aggregate([
-      {
-        $match: { Usuario: Login }
-      },
-      {
-        $lookup: {
-          from: 'roles', // Nombre de la colección de roles
-          localField: 'Rol.IdRolOK', // Campo en Usuarios que referencia al rol
-          foreignField: 'TipoRol', // Campo en Roles que corresponde
-          as: 'rol_info' // Nombre del campo donde se almacenará la información del rol
+    // Buscar el usuario por su login
+    const usuario = await Usuarios.findOne({ 
+      where: { usuario: Login },
+      include: [
+        {
+          model: Roles, // You'll need to define this model/association
         }
-      },
-      {
-        $unwind: '$rol_info' // Descompone el array resultante de $lookup para facilitar el acceso
-      },
-      {
-        $project: {
-          ...Object.fromEntries(Object.keys(Usuarios.schema.paths).map(key => [key, 1])),
-          'rol_info': 1,
-          // Incluye otros campos que desees en la respuesta
-        }
-      }
-    ]);
-    
-    if (resultado.length === 0) {
+      ]
+    });
+    if (!usuario) {
       console.log("Inicio de sesion invalido, fecha y hora: "+new Date(),`\nLogin: ${Login} Password: ${Password}`);
       data.status = 400;
       data.messageDEV = "Contraseña incorrecta / Usuario no encontrado.";
       data.messageUSR = "Contraseña incorrecta / Usuario no encontrado.";
       throw Error(data.messageDEV);
     }
-    
-    // Accede al usuario y su información de rol
-    const userRoles = resultado[0].rol_info;
-    const user = new Usuarios(resultado[0]);
 
-    if (!user.Activo) {
+
+
+    if (!usuario.activo) {
       console.log("Inicio de sesion invalido, fecha y hora: "+new Date(),`\nLogin: ${Login} Password: ${Password}`);
       data.status = 400;
       data.messageDEV = "El usuario esta desactivado.";
@@ -94,132 +80,65 @@ export const login = async (body) => {
       throw Error(data.messageDEV);
     }
 
-    const isMatch = await user.validarContrasena(Password);
+    const isMatch = await usuario.validarContrasena(Password);
 
     if (!isMatch) {
-      console.log("Inicio de sesion invalido, fecha y hora: "+new Date(),`\nLogin: ${Login} Password: ${Password}`);
-
-      //GRX: ver el numero de intentos de ingreso
-      const intentos = 5;
-      user.NumIntentos += 1;
-      if(user.NumIntentos > intentos) {
-        user.Activo = false;
-        //GRX: Actualizar el numero de intentos
-        const userUpdated = await Usuarios.findOneAndUpdate(
-          { IdUsuario: user.IdUsuario },
-          {
-            $set: {
-              Activo: user.Activo
-            },
-          }
-        );
+      console.log("Inicio de sesión inválido", {
+        timestamp: new Date().toISOString(),
+        login: Login,
+        reason: "Contraseña incorrecta"
+      });
+      
+      usuario.num_intentos += 1;
+      
+      // Bloquear el usuario si excede el número de intentos permitidos
+      if(usuario.num_intentos > intentos) {
+        usuario.activo = false;
+        console.log(`Usuario ${Login} bloqueado por exceder ${intentos} intentos fallidos`);
       }
-
-      //GRX: Actualizar el numero de intentos
-      const userUpdated = await Usuarios.findOneAndUpdate(
-        { IdUsuario: user.IdUsuario },
-        {
-          $set: {
-            NumIntentos: user.NumIntentos
-          },
-        }
-      );
+      
+      // Actualizar el numero de intentos
+      await usuario.save();
 
       data.status = 400;
       data.messageDEV = "Contraseña incorrecta / Usuario no encontrado.";
       data.messageUSR = "Contraseña incorrecta / Usuario no encontrado.";
       throw Error(data.messageDEV);
-    }else{
-      //GRX: Actualizar el numero de intentos
-      const userUpdated = await Usuarios.findOneAndUpdate(
-        { IdUsuario: user.IdUsuario },
-        {
-          $set: {
-            NumIntentos: 0
-          },
-        }
-      );
+    } else {
+      // Login exitoso - resetear intentos fallidos si los había
+      if (usuario.num_intentos > 0) {
+        usuario.num_intentos = 0;
+        await usuario.save();
+      }
     }
-
-    //Traer el nombre del hospital
-    const Hospital = await Hospitales.findOne({IdHospital: user.IdHospital});
-
-    if (!Hospital) {
-      console.log("Inicio de sesion invalido, fecha y hora: "+new Date(),`\nLogin: ${Login} Password: ${Password}`);
-      data.status = 400;
-      data.messageDEV = "No se encontro el hospital del usuario.";
-      data.messageUSR = "Contraseña incorrecta / Usuario no encontrado.";
-      throw Error(data.messageDEV);
+    console.log(usuario?.PD_ROLE.letra_rol);
+    // userData para el token
+    let userData = {
+      id_usuario: usuario?.id_usuario,
+      usuario: usuario?.usuario,
+      nombre: usuario?.nombre,
+      appaterno: usuario?.appaterno,
+      apmaterno: usuario?.apmaterno,
+      rol: usuario?.PD_ROLE?.letra_rol
     }
-
-    // Obtener datos de persona
-    const persona = await Persona.findOne({IdPersona: user.IdPersona});
-
-    if (!persona) {
-      console.log("Inicio de sesion invalido, fecha y hora: "+new Date(),`\nLogin: ${Login} Password: ${Password}`);
-      data.status = 400;
-      data.messageDEV = "No se encontro la persona del usuario.";
-      data.messageUSR = "Contraseña incorrecta / Usuario no encontrado.";
-      throw Error(data.messageDEV);
-    }
-
-    let medico = await Medicos.findOne({IdUsuario: parseInt(user.IdUsuario)});
-
-
-    if (!medico) {
-      medico = {
-        IdMedico: 0,
-      };
-    }
-
-    //obtener el tipo de usuario
+    //Generar token
     const token = jwt.sign(
-      { IdUsuario: user.IdUsuario, tipo_usuario: user.cat_usuarios_roles, IdHospital: user.IdHospital, IdPersona: user.IdPersona, IdMedico: medico.IdMedico, Rol: user.Rol.IdRolOK, CambioPassword: user.CambioPassword, Permisos: user.Rol.permisos_especiales, },
-      process.env.JWT_SECRET,
+      userData,
+      config.JWT_SECRET_KEY,
       { expiresIn: "8h" }
     );
 
+    // Eliminar id_usuario del userData
+    delete userData.id_usuario;
     //const decode = jwt.verify(token, process.env.JWT_SECRET);
    // console.log(decode);
-
-    //const Hospital = await Hospitales.findOne({"IdHospital": user.IdHospital});
-
-   // console.log("Usuario encontrado", user);
-
-    const userData = {
-      IdUsuario: user.IdUsuario,
-      NombreUsuario: user.Usuario,
-      Nombre: persona.Nombre + " " + persona.ApPaterno + " " + persona.ApMaterno,
-      TipoUsuario: user.Rol.IdRolOK,
-      IdHospital: user.IdHospital,
-      Permisos: user.Rol.permisos_especiales,
-      Hospital: Hospital.Nombre,
-      CambioPassword: user.CambioPassword,
-      userRoles: userRoles,
-      userInfo: {
-        ApPaterno: persona.ApPaterno,
-        ApMaterno: persona.ApMaterno,
-        Nombre: persona.Nombre,
-        Curp : persona.Curp,
-        cat_personas_correos: persona.cat_personas_correos,
-        cat_personas_telefonos: persona.cat_personas_telefonos
-      },
-      medico: medico.IdMedico !== 0 ? {
-        IdMedico: medico.IdMedico,
-        CedulaProfesional: medico.CedulaProfesional,
-        IdEspecialidad: medico.IdEspecialidad
-      } : null
-    };
-    //console.log("userData", userData);
 
     data.process = 'Inicio de sesion';
 		data.messageDEV ='El inicio de sesion fue exitoso.';
     data.messageUSR = 'El inicio de sesion fue exitoso.';
-		data.dataRes = { respuesta: 1, message: "Inicio de sesión exitoso", token, userData };
+		data.dataRes = { token, userData };
 		bitacora = AddMSG(bitacora, data, 'OK', 200, true);
     return OK(bitacora);
-    // let jsonFinal={ respuesta: 1, message: "Inicio de sesión exitoso", token, devData:bitacora, userData };
-		// return (jsonFinal);
 	} catch (error) {
 		if (!data.status) data.status = error.statusCode;
 		let { message } = error;
@@ -952,6 +871,49 @@ export const returnServerVersion = async () => {
 
 
 ///////////////////////////////////////////////////////////////
+
+// Helper functions para mejorar la legibilidad del código de autenticación
+
+/**
+ * Maneja los intentos fallidos de login
+ * @param {Object} usuario - El objeto usuario de la base de datos
+ * @param {string} login - El login del usuario
+ * @param {number} maxIntentos - Número máximo de intentos permitidos
+ */
+function handleFailedLoginAttempt(usuario, login, maxIntentos) {
+  usuario.num_intentos += 1;
+  
+  if (usuario.num_intentos > maxIntentos) {
+    usuario.activo = false;
+    console.log(`Usuario ${login} bloqueado por exceder ${maxIntentos} intentos fallidos`);
+  }
+  
+  return usuario.save();
+}
+
+/**
+ * Registra información estructurada de intentos de login fallidos
+ * @param {string} login - El login del usuario
+ * @param {string} reason - La razón del fallo
+ */
+function logFailedLogin(login, reason) {
+  console.log("Inicio de sesión inválido", {
+    timestamp: new Date().toISOString(),
+    login: login,
+    reason: reason
+  });
+}
+
+/**
+ * Resetea los intentos fallidos de un usuario después de un login exitoso
+ * @param {Object} usuario - El objeto usuario de la base de datos
+ */
+async function resetFailedAttempts(usuario) {
+  if (usuario.num_intentos > 0) {
+    usuario.num_intentos = 0;
+    await usuario.save();
+  }
+}
 
 function generarContrasenaAleatoria() {
   const caracteres = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';

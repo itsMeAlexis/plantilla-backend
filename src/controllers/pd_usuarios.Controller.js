@@ -1,25 +1,16 @@
-import * as authController from '../services/auth.Services.js';
+import * as usuariosServices from '../services/pd_usuarios.Services.js';
+import jwt from 'jsonwebtoken';
+import config from '../config/config.js';
 
-export const login = async (req, res, next) => {
-    try {
-        const login = await authController.login(req.body);
-        if (login) {
-            return res.status(login.status).json(login);
-        }
-    } catch (error) {
-        next(error);
-    }
-};
-
-export const register = async (req, res, next) => {
+export const createUser = async (req, res, next) => {
     try {
         const token = req.headers.authorization;
-        if(jwt.verify(token, config.JWT_SECRET_KEY)){
-            return res.status(403).json({ message: 'No autorizado' });
-        }
-        const register = await authController.register(req.body);
-        if (register) {
-            return res.status(register.status).json(register);
+        // if(jwt.verify(token, config.JWT_SECRET_KEY)){
+        //     return res.status(403).json({ message: 'No autorizado' });
+        // }
+        const createUser = await usuariosServices.createUser(req.body);
+        if (createUser) {
+            return res.status(createUser.status).json(createUser);
         }
     } catch (error) {
         next(error);

@@ -3,15 +3,13 @@ import config from "../config/config.js";
 
 import authRoutes from "./auth.routes.js";
 
+import usuariosRoutes from "./pd_usuarios.routes.js";
+
 import bdp_parametrosRoutes from "./bdp_parametros.routes.js";
 
 import bdp_nacionalidadesRoutes from "./bdp_cat_nacionalidades.routes.js";
 
 import bdp_edo_civil from "./bdp_edo_civil.routes.js";
-
-import bdp_cat_escolaridadesRoutes from "./bdp_cat_escolaridades.routes.js";
-
-import bdp_colectivos from "./bdp_colectivos.routes.js";
 
 
 const routerAPI = (app) => {
@@ -23,15 +21,13 @@ const routerAPI = (app) => {
 
   router.use("/auth", authRoutes);
 
+  router.use("/usuarios", usuariosRoutes);
+
   router.use("/parametros", bdp_parametrosRoutes);
 
   router.use("/nacionalidades", bdp_nacionalidadesRoutes);
 
   router.use("/edocivil", bdp_edo_civil);
-
-  router.use("/escolaridades", bdp_cat_escolaridadesRoutes);
-
-  router.use("/colectivos", bdp_colectivos);
 
   return router;
 };

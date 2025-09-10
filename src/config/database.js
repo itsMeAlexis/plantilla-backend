@@ -13,6 +13,7 @@ const sequelize = new Sequelize(
   config.DATABASE_PASSWORD,   // Contraseña del usuario
   {
     host: config.DATABASE_HOST, // Host donde se encuentra la base de datos (ej: 'localhost' o una IP)
+    port: config.DATABASE_PORT, // Puerto en el que la base de datos está escuchando (ej: 5432 para PostgreSQL)
     dialect: 'postgres',  // Le indicamos a Sequelize que estamos usando PostgreSQL
 
     // Opcional: Desactiva los logs de cada consulta SQL en la consola.

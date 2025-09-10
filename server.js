@@ -3,7 +3,7 @@ import config from './src/config/config.js';
 
 app.listen(app.get('port'));
 console.log(
-  `Server is running on: http://${config.HOST}:${app.get('port')}${
+  `Server is running on: http://${app.get('host')}:${app.get('port')}${
     config.API_URL
   }`
 );

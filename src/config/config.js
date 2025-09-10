@@ -3,6 +3,12 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 export default {
+	//CORS config
+	CORS_ORIGIN: process.env.CORS_ORIGIN || 'http://localhost:3000',
+	//Server config
+	SERVER_HOST: process.env.SERVER_HOST || 'localhost',
+	SERVER_PORT: process.env.SERVER_PORT || 5500,
+	//API config
 	API_URL: process.env.API_URL || '/api',
 	//Database config
 	DATABASE_NAME: process.env.DATABASE_NAME || '',

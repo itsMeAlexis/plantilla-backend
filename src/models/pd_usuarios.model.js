@@ -1,6 +1,7 @@
 import { DataTypes } from 'sequelize';
 import sequelize from '../config/database.js';
 import bcrypt from 'bcryptjs'; 
+import Roles from './pd_roles.model.js';
 
 const pd_usuarios = sequelize.define('PD_USUARIOS', {
 
@@ -13,7 +14,7 @@ const pd_usuarios = sequelize.define('PD_USUARIOS', {
   },
   id_rol_usuario: {
     type: DataTypes.INTEGER,
-    allowNull: false,
+    allowNull: true,
     field: 'ID_ROL', // Especifica el nombre exacto de la columna en la base de datos
   },
   usuario: {
@@ -101,5 +102,6 @@ pd_usuarios.prototype.validarContrasena = async function (contrasena) {
     return false;
   }
 }
+pd_usuarios.hasOne(Roles, { foreignKey: 'id_rol', sourceKey: 'id_rol_usuario' });
 
 export default pd_usuarios;

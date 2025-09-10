@@ -18,8 +18,8 @@ dayjs.extend(timezone);
 
 const app = express();
 
-import passport from "./src/config/passport.js";
-const corsOrigins = process.env.CORS_ORIGIN.split(",");
+// import passport from "./src/config/passport.js";
+const corsOrigins = config.CORS_ORIGIN.split(",");
 
 app.set("trust proxy", true);
 
@@ -32,10 +32,11 @@ app.use(
 );
 app.use(express.json({ limit: "10mb" }));
 app.use(bodyParser.json());
-app.use(passport.initialize());
+// app.use(passport.initialize());
 app.use(express.urlencoded({ extended: true }));
 
-app.set("port", config.DB_PORT || 5500);
+app.set("port", config.SERVER_PORT || 5500);
+app.set("host", config.SERVER_HOST || "localhost");
 
 const api = config.API_URL;
 
@@ -43,7 +44,7 @@ const api = config.API_URL;
 app.use((req, res, next) => {
   const clientIp = req.ip || req.socket.remoteAddress;
   const requestHost = req.headers.host.split(":")[0];
-  const serverIp = process.env.HOST; // IP del servidor
+  const serverIp = config.SERVER_HOST; // IP del servidor
 
   try {
     // Bloquear solicitudes no autorizadas
