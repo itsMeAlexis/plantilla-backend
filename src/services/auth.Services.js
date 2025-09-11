@@ -1,5 +1,8 @@
-import Usuarios from "../models/pd_usuarios.model.js";
-import Roles from "../models/pd_roles.model.js";
+// import Usuarios from "../models/pd_usuarios.model.js";
+// import Roles from "../models/pd_roles.model.js";
+// import Roles_Paginas from "../models/pd_roles_paginas.model.js";
+// import Paginas from "../models/pd_paginas.model.js";
+import { pd_usuarios, pd_roles, pd_roles_paginas, pd_paginas } from '../models/associations.js';
 import { BITACORA, DATA, OK, AddMSG, FAIL } from '../middleware/respPWA.handler.js';
 import jwt from "jsonwebtoken";
 import config from "../config/config.js";
@@ -15,7 +18,7 @@ export const register = async (body) => {
       data.method = "POST";
       data.api = "/";
 
-      const user = await Usuarios.create(body);
+      const user = await pd_usuarios.create(body);
       if (!user) {
           data.status = 400;
           data.messageDEV = "Error al registrar usuario.";
@@ -54,12 +57,15 @@ export const login = async (body) => {
     data.api = '/login';
 
     // Buscar el usuario por su login
-    const usuario = await Usuarios.findOne({ 
+    const usuario = await pd_usuarios.findOne({ 
       where: { usuario: Login },
       include: [
         {
-          model: Roles, // You'll need to define this model/association
-        }
+          model: pd_roles,
+          include:[
+            { model: pd_roles_paginas }
+          ]
+        },
       ]
     });
     if (!usuario) {
@@ -69,7 +75,7 @@ export const login = async (body) => {
       data.messageUSR = "Contraseña incorrecta / Usuario no encontrado.";
       throw Error(data.messageDEV);
     }
-
+    console.log(usuario.dataValues);
 
 
     if (!usuario.activo) {
@@ -111,7 +117,7 @@ export const login = async (body) => {
         await usuario.save();
       }
     }
-    console.log(usuario?.PD_ROLE.letra_rol);
+    // console.log(usuario?.PD_ROLE.letra_rol);
     // userData para el token
     let userData = {
       id_usuario: usuario?.id_usuario,

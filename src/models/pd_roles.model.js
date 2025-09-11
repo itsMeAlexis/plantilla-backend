@@ -1,5 +1,5 @@
 import { DataTypes } from 'sequelize';
-import sequelize from '../config/database.js'; 
+import sequelize from '../config/database.js';
 
 const pd_roles = sequelize.define('PD_ROLES', {
 
@@ -35,6 +35,5 @@ const pd_roles = sequelize.define('PD_ROLES', {
   // En este caso, ya los hemos definido con snake_case.
   underscored: true,
 });
-
 
 export default pd_roles;

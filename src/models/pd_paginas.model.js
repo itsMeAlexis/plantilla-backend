@@ -1,31 +1,30 @@
 import { DataTypes } from 'sequelize';
-import sequelize from '../config/database.js'; 
+import sequelize from '../config/database.js';
 
-const bdp_cat_nacionalidades = sequelize.define('BDP_CAT_NACIONALIDADES', {
+const pd_paginas = sequelize.define('PD_PAGINAS', {
 
-  id_nacionalidad: {
+  id_pagina: {
     type: DataTypes.INTEGER,
     allowNull: true, // Se permite que sea nulo, pero podría ser una FK a otra tabla
     primaryKey: true, // Define esta columna como la clave primaria
     autoIncrement: true, // Si quieres que sea autoincremental
-    field: 'ID_NACIONALIDAD' // Especifica el nombre exacto de la columna en la base de datos
+    field: 'ID_PAGINA' // Especifica el nombre exacto de la columna en la base de datos
   },
-  nacionalidad: {
-    type: DataTypes.STRING(50),
+  path: {
+    type: DataTypes.STRING(20),  
     allowNull: false,
-    field: 'NACIONALIDAD', // Especifica el nombre exacto de la columna en la base de datos
+    field: 'PATH', // Especifica el nombre exacto de la columna en la base de datos
   },
-
-  pais: {
+  descripcion: {
     type: DataTypes.STRING(50),
     allowNull: false, // Se permite que el lugar sea nulo/vacío
-    field: 'PAIS', // Especifica el nombre exacto de la columna en la base de datos
+    field: 'DESCRIPCION', // Especifica el nombre exacto de la columna en la base de datos
   },
 }, {
   // Opciones adicionales del modelo
 
   // Especifica el nombre exacto de la tabla en la base de datos.
-  tableName: 'BDP_CAT_NACIONALIDADES',
+  tableName: 'PD_PAGINAS',
 
   // Desactiva los campos createdAt y updatedAt que Sequelize añade por defecto.
   // Si los necesitas, simplemente pon esto en 'true' o elimínalo.
@@ -37,4 +36,4 @@ const bdp_cat_nacionalidades = sequelize.define('BDP_CAT_NACIONALIDADES', {
   underscored: true,
 });
 
-export default bdp_cat_nacionalidades;
+export default pd_paginas;

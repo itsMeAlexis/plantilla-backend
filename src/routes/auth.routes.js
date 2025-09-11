@@ -5,17 +5,16 @@ const router = Router();
 
 router.post('/login', authController.login);
 
-router.post('/register', authController.register);
 
-router.put('/change-password', authController.changePassword);
+// router.put('/change-password', authController.changePassword);
 
-router.put('/forgot-password-change/', authController.recoverPassword);
+// router.put('/forgot-password-change/', authController.recoverPassword);
 
-//GRX: para intentar resetear la contraseña si hay correo
-router.put('/reset-password/:IdUsuario', authController.resetPassword);
-//GRX: para enviar un correo con la contraseña resetada al usuario
-router.put('/send-email-password/', authController.sendEmailPassword);
+// //GRX: para intentar resetear la contraseña si hay correo
+// router.put('/reset-password/:IdUsuario', authController.resetPassword);
+// //GRX: para enviar un correo con la contraseña resetada al usuario
+// router.put('/send-email-password/', authController.sendEmailPassword);
 
-router.get('/version/', authController.returnServerVersion);
+// router.get('/version/', authController.returnServerVersion);
 
 export default router;

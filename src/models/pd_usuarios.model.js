@@ -102,6 +102,5 @@ pd_usuarios.prototype.validarContrasena = async function (contrasena) {
     return false;
   }
 }
-pd_usuarios.hasOne(Roles, { foreignKey: 'id_rol', sourceKey: 'id_rol_usuario' });
 
 export default pd_usuarios;
