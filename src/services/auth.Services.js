@@ -4,7 +4,7 @@
 // import Paginas from "../models/pd_paginas.model.js";
 import { pd_usuarios, pd_roles, pd_roles_paginas, pd_paginas } from '../models/associations.js';
 import { BITACORA, DATA, OK, AddMSG, FAIL } from '../middleware/respPWA.handler.js';
-import jwt from "jsonwebtoken";
+import { generateToken } from '../config/jwt.js'; 
 import config from "../config/config.js";
 import { transporter } from '../config/nodemailer.js';
 import path from 'path';
@@ -128,11 +128,12 @@ export const login = async (body) => {
       rol: usuario?.PD_ROLE?.letra_rol
     }
     //Generar token
-    const token = jwt.sign(
-      userData,
-      config.JWT_SECRET_KEY,
-      { expiresIn: "8h" }
-    );
+    // const token = jwt.sign(
+    //   userData,
+    //   config.JWT_SECRET_KEY,
+    //   { expiresIn: "8h" }
+    // );
+    const token = generateToken({user: userData, expiresIn: "8h"});
 
     // Eliminar id_usuario del userData
     delete userData.id_usuario;
