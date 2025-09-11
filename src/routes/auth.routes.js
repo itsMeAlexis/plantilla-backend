@@ -1,9 +1,12 @@
 import { Router } from 'express';
 import * as authController from '../controllers/authController.js';
+import authenticate from '../middleware/authenticate.js';
 
 const router = Router();
 
 router.post('/login', authController.login);
+
+router.get('/validate-token', authenticate, authController.validateToken);
 
 
 // router.put('/change-password', authController.changePassword);

@@ -11,6 +11,18 @@ export const login = async (req, res, next) => {
     }
 };
 
+export const validateToken = async (req, res, next) => {
+    try {
+        const token = req.headers.authorization;
+        const login = await authController.validateToken(token);
+        if (login) {
+            return res.status(200).json(login);
+        }
+    } catch (error) {
+        next(error);
+    }
+};
+
 export const register = async (req, res, next) => {
     try {
         const token = req.headers.authorization;

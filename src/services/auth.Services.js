@@ -1,13 +1,10 @@
-// import Usuarios from "../models/pd_usuarios.model.js";
-// import Roles from "../models/pd_roles.model.js";
-// import Roles_Paginas from "../models/pd_roles_paginas.model.js";
-// import Paginas from "../models/pd_paginas.model.js";
 import { pd_usuarios, pd_roles, pd_roles_paginas, pd_paginas } from '../models/associations.js';
 import { BITACORA, DATA, OK, AddMSG, FAIL } from '../middleware/respPWA.handler.js';
 import { generateToken } from '../config/jwt.js'; 
 import config from "../config/config.js";
 import { transporter } from '../config/nodemailer.js';
 import path from 'path';
+import jwt from 'jsonwebtoken';
 
 export const register = async (body) => {
   let bitacora = BITACORA();
@@ -63,7 +60,11 @@ export const login = async (body) => {
         {
           model: pd_roles,
           include:[
-            { model: pd_roles_paginas }
+            { model: pd_roles_paginas,
+              include: [
+                { model: pd_paginas }
+              ]
+            }
           ]
         },
       ]
@@ -75,8 +76,8 @@ export const login = async (body) => {
       data.messageUSR = "Contraseña incorrecta / Usuario no encontrado.";
       throw Error(data.messageDEV);
     }
-    console.log(usuario.dataValues);
-
+    // console.log(usuario.dataValues.PD_ROLE.PD_ROLES_PAGINAs);
+    
 
     if (!usuario.activo) {
       console.log("Inicio de sesion invalido, fecha y hora: "+new Date(),`\nLogin: ${Login} Password: ${Password}`);
@@ -117,7 +118,11 @@ export const login = async (body) => {
         await usuario.save();
       }
     }
-    // console.log(usuario?.PD_ROLE.letra_rol);
+    const authorizedPages = usuario.dataValues.PD_ROLE.PD_ROLES_PAGINAs.map(rp => ({
+      path: rp.dataValues.PD_PAGINA?.path,
+      descripcion: rp.dataValues.PD_PAGINA?.descripcion,
+    }));
+    console.log(authorizedPages)
     // userData para el token
     let userData = {
       id_usuario: usuario?.id_usuario,
@@ -125,7 +130,9 @@ export const login = async (body) => {
       nombre: usuario?.nombre,
       appaterno: usuario?.appaterno,
       apmaterno: usuario?.apmaterno,
-      rol: usuario?.PD_ROLE?.letra_rol
+      cambio_password: usuario?.cambio_password,
+      rol: usuario?.PD_ROLE?.letra_rol,
+      authorizedPages
     }
     //Generar token
     // const token = jwt.sign(
@@ -156,6 +163,79 @@ export const login = async (body) => {
 		return FAIL(bitacora);
 	}
 };
+
+export const validateToken = async (token) => {
+  let bitacora = BITACORA();
+  let data = DATA();
+  try {
+    bitacora.process = 'Validar el token del usuario.';
+    data.method = "GET";
+    data.api = "/validate-token";
+    const decoded = jwt.decode(token, config.JWT_SECRET_KEY);
+    if (!decoded) {
+      data.status = 403;
+      data.process = 'Validar el token del usuario.';
+      data.messageDEV ='Token inválido';
+      data.messageUSR = 'Token inválido';
+    }
+    const userInfo = await pd_usuarios.findOne({
+      where: { id_usuario: decoded.id_usuario },
+      include: [
+        {
+          model: pd_roles,
+          include: [
+            {
+              model: pd_roles_paginas,
+              include: [
+                { model: pd_paginas }
+              ]
+            }
+          ]
+        },
+      ]
+    });
+    if (!userInfo) {
+      data.status = 403;
+      data.process = 'Validar el token del usuario.';
+      data.messageDEV ='Token inválido';
+      data.messageUSR = 'Token inválido';
+    }
+    if (!userInfo.activo) {
+      data.status = 403;
+      data.process = 'Validar el token del usuario.';
+      data.messageDEV ='Token inválido';
+      data.messageUSR = 'Token inválido';
+    }
+    const authorizedPages = userInfo.dataValues.PD_ROLE.PD_ROLES_PAGINAs.map(rp => ({
+      path: rp.dataValues.PD_PAGINA?.path,
+      descripcion: rp.dataValues.PD_PAGINA?.descripcion,
+    }));
+    const userData = {
+      id_usuario: userInfo.id_usuario,
+      usuario: userInfo.usuario,
+      nombre: userInfo.nombre,
+      appaterno: userInfo.appaterno,
+      apmaterno: userInfo.apmaterno,
+      cambio_password: userInfo.cambio_password,
+      rol: userInfo.PD_ROLE?.letra_rol,
+      authorizedPages
+    };
+    data.process = 'Validar el token del usuario.';
+    data.messageDEV ='El token es valido.';
+    data.messageUSR = 'El token es valido.';
+    data.dataRes = {userData, token};
+    bitacora = AddMSG(bitacora, data, 'OK', 200, true);
+    return OK(bitacora)
+  } catch (error) {
+    if (!data.status) data.status = error.statusCode;
+    let { message } = error;
+    if (!data.messageDEV) data.messageDEV = message;
+    if (!data.messageUSR) data.messageUSR = message;
+    if (data.dataRes.length === 0) data.dataRes = error;
+    bitacora = AddMSG(bitacora, data, 'FAIL');
+    return FAIL(bitacora);
+  }
+}
 
 export const updateUser = async (req, res) => {
   try {
