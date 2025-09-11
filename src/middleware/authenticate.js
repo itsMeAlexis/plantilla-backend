@@ -17,7 +17,7 @@ import config from '../config/config.js';
 export const authenticate = (req, res, next) => {
     const token = req.headers['authorization'];
     // const token = authHeader && authHeader.split(' ')[1]; // Extrae el token del encabezado
-    console.log(token);
+    // console.log(token);
 
     if (!token) {
         return res.status(401).json({ message: 'No autorizado' });

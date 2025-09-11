@@ -6,6 +6,8 @@ const router = Router();
 
 router.post('/login', authController.login);
 
+router.put('/change-password', authenticate, authController.changePassword);
+
 router.get('/validate-token', authenticate, authController.validateToken);
 
 

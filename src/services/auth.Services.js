@@ -304,28 +304,36 @@ export const changePassword = async (body, token) => {
     bitacora.process = 'Cambiar la contraseña del usuario a una nueva.';
     data.method = "PUT";
     data.api = "/change-password";
-    const decoded = jwt.verify(token, config.JWT_SECRET);
-    //console.log("decoded:", decoded);
 
-    const usuario = await Usuarios.findOne({"IdUsuario": decoded.IdUsuario});
+    const decoded = jwt.verify(token, config.JWT_SECRET_KEY);
+    if (!decoded) {
+      data.process = "Validar el token.";
+      data.messageDEV = "Token inválido.";
+      data.messageUSR = "Token inválido.";
+      throw Error(data.messageDEV);
+    }
+    const usuario = await pd_usuarios.findOne({ 
+      where: { 
+        id_usuario: decoded.id_usuario,
+        cambio_password: true
+       },
+    });
     if (!usuario) {
       data.process = "Encontrar el usuario.";
       data.messageDEV = "No se encontró el usuario.";
       data.messageUSR = "No se encontró el usuario.";
       throw Error(data.messageDEV);
     }
-    let usuarioData = usuario;
     if (NewPassword !== NewConfirmPassword){
       bitacora.process = "Las contraseñas no coinciden.";
       data.messageDEV = "Las contraseñas no coinciden.";
       data.messageUSR = "Las contraseñas no coinciden.";
       throw Error(data.messageDEV);
     }
-    usuarioData.Password = NewPassword;
-    usuarioData.CambioPassword = false;
-    usuario.set(usuarioData);
-    const updatedPassword = await usuario.save();
-    if (!updatedPassword) {
+    usuario.password = NewPassword;
+    usuario.cambio_password = false;
+    const updatedUserPassword = await usuario.save();
+    if (!updatedUserPassword) {
       bitacora.process = "Error al actualizar la contraseña.";
       data.messageDEV = "Error al actualizar la contraseña.";
       data.messageUSR = "Error al actualizar la contraseña.";
@@ -334,7 +342,7 @@ export const changePassword = async (body, token) => {
     bitacora.process = 'Cambiar la contraseña del usuario a una nueva.';
     bitacora.messageDEV = "Cambio de contraseña exitoso.";
     bitacora.messageUSR = "Cambio de contraseña exitoso.";
-		data.dataRes = updatedPassword;
+		data.dataRes = { userData:updatedUserPassword?.usuario };
 		bitacora = AddMSG(bitacora, data, 'OK', 200, true);
     return OK(bitacora)
   } catch (error) {
