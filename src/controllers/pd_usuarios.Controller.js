@@ -17,16 +17,59 @@ export const createUser = async (req, res, next) => {
     }
 };
 
-export const updateUser = async (req, res, next) => {
+export const getAllUsers = async (req, res, next) => {
     try {
-        const updateUser = await authController.updateUser(req.body);
-        if (updateUser) {
-            return res.status(201).json(updateUser);
+        const getAllUsers = await usuariosServices.getAllUsers();
+        if (getAllUsers) {
+            return res.status(getAllUsers.status).json(getAllUsers);
         }
     } catch (error) {
         next(error);
     }
 }
+ 
+export const getUserById = async (req, res, next) => {
+    try {
+        const getUserById = await usuariosServices.getUserById(req.params.IdUsuario);
+        if (getUserById) {
+            return res.status(getUserById.status).json(getUserById);
+        }
+    } catch (error) {
+        next(error);
+    }
+}
+
+export const updateUser = async (req, res, next) => {
+    try {
+        const updateUser = await usuariosServices.updateUser(req.body, req.params.IdUsuario);
+        if (updateUser) {
+            return res.status(updateUser.status).json(updateUser);
+        }
+    } catch (error) {
+        next(error);
+    }
+}
+
+export const changeUserStatus = async (req, res, next) => {
+    try {
+        const changeUserStatus = await usuariosServices.changeUserStatus(req.params.IdUsuario);
+        if (changeUserStatus) {
+            return res.status(changeUserStatus.status).json(changeUserStatus);
+        }
+    } catch (error) {
+        next(error);
+    }
+}
+
+
+
+// ---------------------------------    |
+// Controladores que ya estaban antes   V
+
+
+
+
+
 
 export const changePassword = async (req, res, next) => {
     const token = req.headers.authorization;

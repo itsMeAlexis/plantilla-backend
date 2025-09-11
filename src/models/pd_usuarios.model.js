@@ -3,7 +3,7 @@ import sequelize from '../config/database.js';
 import bcrypt from 'bcryptjs'; 
 import Roles from './pd_roles.model.js';
 
-const pd_usuarios = sequelize.define('PD_USUARIOS', {
+const pd_usuarios = sequelize.define('pd_usuarios', {
 
   id_usuario: {
     type: DataTypes.INTEGER,

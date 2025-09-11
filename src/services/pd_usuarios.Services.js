@@ -39,3 +39,256 @@ export const createUser = async (body) => {
       return FAIL(bitacora);
   }
 };
+
+export const getAllUsers = async (queryParams = {}) => {
+  let bitacora = BITACORA();
+  let data = DATA();
+
+  try {
+    bitacora.process = "Obtener todos los usuarios.";
+    data.method = "GET";
+    data.api = "/";
+
+    const options = {
+      include: [{
+        model: Roles,
+        as: 'PD_ROLE',
+        attributes: ['ID_ROL', 'LETRA_ROL', 'DESCRIPCION']
+      }],
+      attributes: { 
+        // solamente se excluye la pass porq pa q la quieres jajaja
+        exclude: ['PASSWORD'] 
+      },
+    };
+
+    // Paginación
+    const page = parseInt(queryParams.page) || 1;
+    const limit = parseInt(queryParams.limit) || 10;
+    const offset = (page - 1) * limit;
+
+    options.limit = limit;
+    options.offset = offset;
+
+    const { count, rows: users } = await Usuarios.findAndCountAll(options);
+
+    if (!users || users.length === 0) {
+      data.status = 404;
+      data.messageDEV = "No se encontraron usuarios.";
+      data.messageUSR = "No hay usuarios registrados.";
+      throw new Error(data.messageDEV);
+    }
+
+    data.process = "Obtener todos los usuarios.";
+    data.messageDEV = "Usuarios obtenidos exitosamente.";
+    data.messageUSR = "Usuarios obtenidos exitosamente.";
+    data.dataRes = {
+      users,
+      pagination: {
+        total: count,
+        page,
+        limit,
+        totalPages: Math.ceil(count / limit)
+      }
+    };
+    
+    bitacora = AddMSG(bitacora, data, "OK", 200, true);  
+    return OK(bitacora);
+    
+  } catch (error) {
+    if (!data.status) data.status = error.statusCode || 500;
+    let { message } = error;
+    if (!data.messageDEV) data.messageDEV = message;
+    if (!data.messageUSR) data.messageUSR = "Error al obtener usuarios.";
+    if (data.dataRes.length === 0) data.dataRes = error;
+    bitacora = AddMSG(bitacora, data, "FAIL");
+    return FAIL(bitacora);
+  }
+};
+
+export const getUserById = async (userId) => {
+  let bitacora = BITACORA();
+  let data = DATA();
+
+  try {
+    bitacora.process = "Obtener usuario por ID.";
+    data.method = "GET";
+    data.api = "/:id";
+
+    if (!userId) {
+      data.status = 400;
+      data.messageDEV = "ID de usuario no proporcionado.";
+      data.messageUSR = "Por favor, proporciona el ID del usuario.";
+      throw new Error(data.messageDEV);
+    }
+
+    const user = await Usuarios.findOne({
+      where: {
+        ID_USUARIO: userId,
+      },
+      include: [{
+        model: Roles,
+        as: 'PD_ROLE',
+        attributes: ['ID_ROL', 'LETRA_ROL', 'DESCRIPCION']
+      }],
+      attributes: {
+        // solamente se excluye la pass porq pa q la quieres jajaja
+        exclude: ['PASSWORD']
+      }
+    });
+
+    if (!user) {
+      data.status = 404;
+      data.messageDEV = `No se encontró usuario con el ID ${userId}.`;
+      data.messageUSR = "Usuario no encontrado.";
+      throw new Error(data.messageDEV);
+    }
+
+    data.process = "Obtener usuario por ID.";
+    data.messageDEV = "Usuario obtenido exitosamente.";
+    data.messageUSR = "Usuario obtenido exitosamente.";
+    data.dataRes = user;
+
+    bitacora = AddMSG(bitacora, data, "OK", 200, true);
+    return OK(bitacora);
+
+  } catch (error) {
+    if (!data.status) data.status = error.statusCode || 500;
+    let { message } = error;
+    if (!data.messageDEV) data.messageDEV = message;
+    if (!data.messageUSR) data.messageUSR = "Error al obtener usuario.";
+    if (data.dataRes.length === 0) data.dataRes = error;
+    bitacora = AddMSG(bitacora, data, "FAIL");
+    return FAIL(bitacora);
+  }
+};
+
+export const updateUser = async (body, userId) => {
+  let bitacora = BITACORA();
+  let data = DATA();
+
+  try {
+    bitacora.process = "Actualizar usuario.";
+    data.method = "PUT";
+    data.api = "/:id";
+
+    if (!userId) {
+      data.status = 400;
+      data.messageDEV = "ID de usuario no proporcionado.";
+      data.messageUSR = "Por favor, proporciona el ID del usuario.";
+      throw new Error(data.messageDEV);
+    }
+
+    const user = await Usuarios.findOne({
+      where: {
+        ID_USUARIO: userId,
+        activo: true, // Solo usuarios activos
+      }
+    });
+
+    if (!user) {
+      data.status = 404;
+      data.messageDEV = `No se encontró usuario con el ID ${userId}.`;
+      data.messageUSR = "Usuario no encontrado.";
+      throw new Error(data.messageDEV);
+    }
+
+    const updatedUser = await Usuarios.update(body, {
+      where: {
+        ID_USUARIO: userId
+      }
+    });
+
+    if (!updatedUser) {
+      data.status = 500;
+      data.messageDEV = "Error al actualizar usuario.";
+      data.messageUSR = "Error al actualizar usuario.";
+      throw new Error(data.messageDEV);
+    }
+
+    data.process = "Actualizar usuario.";
+    data.messageDEV = "Usuario actualizado exitosamente.";
+    data.messageUSR = "Usuario actualizado exitosamente.";
+    data.dataRes = user;
+
+    bitacora = AddMSG(bitacora, data, "OK", 200, true);
+    return OK(bitacora);  
+    } catch (error) {
+      if (!data.status) data.status = error.statusCode || 500;
+      let { message } = error;
+      if (!data.messageDEV) data.messageDEV = message;
+      if (!data.messageUSR) data.messageUSR = "Error al actualizar usuario.";
+      if (data.dataRes.length === 0) data.dataRes = error;
+      bitacora = AddMSG(bitacora, data, "FAIL");
+      return FAIL(bitacora);
+    }
+};
+
+export const changeUserStatus = async (userId) => {
+  let bitacora = BITACORA();
+  let data = DATA();
+
+  try {
+    bitacora.process = "Cambiar estado de usuario.";
+    data.method = "PATCH";
+    data.api = "/:id";
+
+    if (!userId || isNaN(userId)) {
+      data.status = 400;
+      data.messageDEV = "ID de usuario inválido. El ID debe ser un número entero.";
+      data.messageUSR = "Por favor, proporciona un ID de usuario válido.";
+      throw new Error(data.messageDEV);
+    }
+
+    // Buscar el usuario para obtener su estado actual
+    const userToUpdate = await Usuarios.findByPk(userId);
+
+    if (!userToUpdate) {
+      data.status = 404;
+      data.messageDEV = `No se encontró usuario con el ID ${userId}.`;
+      data.messageUSR = "Usuario no encontrado.";
+      throw new Error(data.messageDEV);
+    }
+
+    // Alternar el valor de 'activo'
+    const newStatus = !userToUpdate.activo;
+
+    // Actualizar el estado del usuario en la base de datos
+    const [rowsUpdated] = await Usuarios.update({ activo: newStatus }, {
+      where: {
+        ID_USUARIO: userId
+      }
+    });
+
+    if (rowsUpdated === 0) {
+      data.status = 409;
+      data.messageDEV = "No se aplicaron cambios al estado del usuario.";
+      data.messageUSR = "No se aplicaron cambios.";
+      throw new Error(data.messageDEV);
+    }
+
+    // Obtener el usuario con el estado actualizado para la respuesta
+    const updatedUser = await Usuarios.findByPk(userId, {
+      attributes: {
+        exclude: ['PASSWORD']
+      }
+    });
+
+    data.process = "Cambiar estado de usuario.";
+    data.messageDEV = `Estado de usuario cambiado a ${newStatus ? 'activo' : 'inactivo'}.`;
+    data.messageUSR = `Estado de usuario cambiado a ${newStatus ? 'activo' : 'inactivo'}.`;
+    data.dataRes = updatedUser;
+
+    bitacora = AddMSG(bitacora, data, "OK", 200, true);
+    return OK(bitacora);
+
+  } catch (error) {
+    if (!data.status) data.status = error.statusCode || 500;
+    let { message } = error;
+    if (!data.messageDEV) data.messageDEV = message;
+    if (!data.messageUSR) data.messageUSR = "Error al cambiar el estado del usuario.";
+    if (data.dataRes.length === 0) data.dataRes = error;
+    bitacora = AddMSG(bitacora, data, "FAIL");
+    return FAIL(bitacora);
+  }
+};
+    
