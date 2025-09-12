@@ -70,9 +70,8 @@ app.use((req, res, next) => {
         const tokenData = jwt.decode(token);
 
         if (tokenData) {
-          log.IdUsuario = tokenData.IdUsuario;
-          log.IdHospital = tokenData.IdHospital;
-          log.Rol = tokenData.Rol;
+          log.id_usuario = tokenData.id_usuario;
+          log.rol = tokenData.rol;
         }
       } catch (error) {
         console.error("Error al decodificar token:", error);
@@ -93,9 +92,14 @@ app.use((req, res, next) => {
       isLogin = true;
     }
 
-    if (!log.IdHospital) {
-      isUndefined = true;
+    //Si es de validate-token no poner en logs
+    if (req.originalUrl === "/api/auth/validate-token") {
+      return next();
     }
+
+    // if (!log.IdHospital) {
+    //   isUndefined = true;
+    // }
 
     let route = "";
 

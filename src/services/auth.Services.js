@@ -45,8 +45,8 @@ export const login = async (body) => {
   let data = DATA();
   const intentos = 5;
   const credentials = Buffer.from(body.credentials, "base64").toString("utf8");
-  // console.log(credentials)
-  const [Login, Password] = credentials.split(":");
+  console.log(credentials)
+  const [Login, Password, loggedAt] = credentials.split(":");
 
   try {
     bitacora.process = 'Inicio de sesion';
@@ -150,7 +150,7 @@ export const login = async (body) => {
     data.process = 'Inicio de sesion';
 		data.messageDEV ='El inicio de sesion fue exitoso.';
     data.messageUSR = 'El inicio de sesion fue exitoso.';
-		data.dataRes = { token, userData };
+		data.dataRes = { token, userData, loggedAt };
 		bitacora = AddMSG(bitacora, data, 'OK', 200, true);
     return OK(bitacora);
 	} catch (error) {
@@ -220,10 +220,17 @@ export const validateToken = async (token) => {
       rol: userInfo.PD_ROLE?.letra_rol,
       authorizedPages
     };
+
+    // 🔄 GENERAR NUEVO TOKEN (esto es lo que faltaba!)
+    const newToken = generateToken({user: userData, expiresIn: "8h"});
+    
+    // Eliminar id_usuario del userData que se devuelve
+    delete userData.id_usuario;
+
     data.process = 'Validar el token del usuario.';
-    data.messageDEV ='El token es valido.';
-    data.messageUSR = 'El token es valido.';
-    data.dataRes = {userData, token};
+    data.messageDEV ='El token es valido y se ha renovado.';
+    data.messageUSR = 'El token es valido y se ha renovado.';
+    data.dataRes = {userData, token: newToken}; // ← Devolver el NUEVO token
     bitacora = AddMSG(bitacora, data, 'OK', 200, true);
     return OK(bitacora)
   } catch (error) {
