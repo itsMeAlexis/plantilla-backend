@@ -50,6 +50,19 @@ export const updateUser = async (req, res, next) => {
     }
 }
 
+export const updateProfile = async (req, res, next) => {
+    const tokenData = jwt.decode(req.body.token);
+    console.log("Token data decoded:", tokenData);
+    try {
+        const updateProfile = await usuariosServices.updateProfile(req.body, tokenData.id_usuario);
+        if (updateProfile) {
+            return res.status(updateProfile.status).json(updateProfile);
+        }
+    } catch (error) {
+        next(error);
+    }
+}
+
 export const changeUserStatus = async (req, res, next) => {
     try {
         const changeUserStatus = await usuariosServices.changeUserStatus(req.params.IdUsuario);

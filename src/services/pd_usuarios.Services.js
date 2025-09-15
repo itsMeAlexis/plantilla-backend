@@ -1,6 +1,7 @@
 import Usuarios from "../models/pd_usuarios.model.js";
 import Roles from "../models/pd_roles.model.js";
 import { BITACORA, DATA, OK, AddMSG, FAIL } from '../middleware/respPWA.handler.js';
+import { Op } from "sequelize";
 import jwt from "jsonwebtoken";
 import config from "../config/config.js";
 import { transporter } from '../config/nodemailer.js';
@@ -208,6 +209,93 @@ export const updateUser = async (body, userId) => {
     data.process = "Actualizar usuario.";
     data.messageDEV = "Usuario actualizado exitosamente.";
     data.messageUSR = "Usuario actualizado exitosamente.";
+    data.dataRes = user;
+
+    bitacora = AddMSG(bitacora, data, "OK", 200, true);
+    return OK(bitacora);  
+    } catch (error) {
+      if (!data.status) data.status = error.statusCode || 500;
+      let { message } = error;
+      if (!data.messageDEV) data.messageDEV = message;
+      if (!data.messageUSR) data.messageUSR = "Error al actualizar usuario.";
+      if (data.dataRes.length === 0) data.dataRes = error;
+      bitacora = AddMSG(bitacora, data, "FAIL");
+      return FAIL(bitacora);
+    }
+};
+
+export const updateProfile = async (body, userId) => {
+  let bitacora = BITACORA();
+  let data = DATA();
+  const { password } = body;
+  delete body.password;
+  delete body.token;
+
+  try {
+    bitacora.process = "Actualizar perfil de usuario.";
+    data.method = "PUT";
+    data.api = "/:id";
+
+    if (!userId) {
+      data.status = 400;
+      data.messageDEV = "ID de usuario no proporcionado.";
+      data.messageUSR = "Por favor, proporciona el ID del usuario.";
+      throw new Error(data.messageDEV);
+    }
+
+    let user = await Usuarios.findOne({
+      where: {
+        ID_USUARIO: userId,
+        activo: true, // Solo usuarios activos
+      }
+    });
+
+    if (!user) {
+      data.status = 404;
+      data.messageDEV = `No se encontró usuario con el ID ${userId}.`;
+      data.messageUSR = "Usuario no encontrado.";
+      throw new Error(data.messageDEV);
+    }
+
+    const isMatch = await user.validarContrasena(password);
+    let updatedUser = false;
+
+    if (isMatch) {
+      // Verificar si el nuevo nombre de usuario ya existe en otro usuario
+      if (body.username) {
+        const usuarioExistente = await Usuarios.findOne({
+          where: {
+            usuario: body.username,
+            ID_USUARIO: { [Op.ne]: userId } // Excluye el usuario actual
+          }
+        });
+        if (usuarioExistente) {
+          data.status = 409;
+          data.messageDEV = "El nombre de usuario ya está en uso.";
+          data.messageUSR = "El nombre de usuario ya está en uso.";
+          throw new Error(data.messageDEV);
+        }
+      }
+
+      user.username = body.username || user.username;
+      user.nombre = body.nombre || user.nombre;
+      user.appaterno = body.appaterno || user.appaterno;
+      user.apmaterno = body.apmaterno || user.apmaterno;
+      user.password = body.newPassword || user.password; // Actualiza la contraseña si se proporciona una nueva
+      
+      updatedUser = await user.save();
+    }
+
+    if (!updatedUser) {
+      data.status = 500;
+      data.messageDEV = "Error al actualizar usuario.";
+      data.messageUSR = "Error al actualizar usuario.";
+      throw new Error(data.messageDEV);
+    }
+
+    data.process = "Actualizar usuario.";
+    data.messageDEV = "Usuario actualizado correctamente.";
+    data.messageUSR = "Usuario actualizado correctamente.";
     data.dataRes = user;
 
     bitacora = AddMSG(bitacora, data, "OK", 200, true);

@@ -12,6 +12,8 @@ router.get('/getUserById/:IdUsuario', usuariosController.getUserById);
 
 router.put('/updateUser/:IdUsuario', usuariosController.updateUser);
 
+router.put('/updateProfile/', authenticate, usuariosController.updateProfile);
+
 router.patch('/changeUserStatus/:IdUsuario', usuariosController.changeUserStatus);
 
 
