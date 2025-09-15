@@ -62,7 +62,9 @@ export const login = async (body) => {
           include:[
             { model: pd_roles_paginas,
               include: [
-                { model: pd_paginas }
+                { 
+                  model: pd_paginas
+                }
               ]
             }
           ]
@@ -118,10 +120,13 @@ export const login = async (body) => {
         await usuario.save();
       }
     }
-    const authorizedPages = usuario.dataValues.PD_ROLE.PD_ROLES_PAGINAs.map(rp => ({
+    const authorizedPages = usuario.dataValues.PD_ROLE.PD_ROLES_PAGINAs
+      .map(rp => ({
       path: rp.dataValues.PD_PAGINA?.path,
       descripcion: rp.dataValues.PD_PAGINA?.descripcion,
-    }));
+      prioridad: rp.dataValues.PD_PAGINA?.prioridad
+      }))
+      .sort((a, b) => a.prioridad - b.prioridad);
     console.log(authorizedPages)
     // userData para el token
     let userData = {
@@ -187,7 +192,9 @@ export const validateToken = async (token) => {
             {
               model: pd_roles_paginas,
               include: [
-                { model: pd_paginas }
+                { 
+                  model: pd_paginas
+                }
               ]
             }
           ]
@@ -206,10 +213,13 @@ export const validateToken = async (token) => {
       data.messageDEV ='Token inválido';
       data.messageUSR = 'Token inválido';
     }
-    const authorizedPages = userInfo.dataValues.PD_ROLE.PD_ROLES_PAGINAs.map(rp => ({
-      path: rp.dataValues.PD_PAGINA?.path,
-      descripcion: rp.dataValues.PD_PAGINA?.descripcion,
-    }));
+    const authorizedPages = userInfo.dataValues.PD_ROLE.PD_ROLES_PAGINAs
+      .map(rp => ({
+        path: rp.dataValues.PD_PAGINA?.path,
+        descripcion: rp.dataValues.PD_PAGINA?.descripcion,
+        prioridad: rp.dataValues.PD_PAGINA?.prioridad
+      }))
+      .sort((a, b) => a.prioridad - b.prioridad);
     const userData = {
       id_usuario: userInfo.id_usuario,
       usuario: userInfo.usuario,
