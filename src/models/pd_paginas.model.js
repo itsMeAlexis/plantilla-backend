@@ -20,6 +20,11 @@ const pd_paginas = sequelize.define('PD_PAGINAS', {
     allowNull: false, // Se permite que el lugar sea nulo/vacío
     field: 'DESCRIPCION', // Especifica el nombre exacto de la columna en la base de datos
   },
+  prioridad: {
+    type: DataTypes.INTEGER,
+    allowNull: true, // Se permite que el lugar sea nulo/vacío
+    field: 'PRIORIDAD', // Especifica el nombre exacto de la columna en la base de datos
+  }
 }, {
   // Opciones adicionales del modelo
 
