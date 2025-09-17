@@ -58,7 +58,7 @@ export const getAllUsers = async (queryParams = {}) => {
       }],
       attributes: { 
         // solamente se excluye la pass porq pa q la quieres jajaja
-        exclude: ['PASSWORD'] 
+        exclude: ['password'] 
       },
     };
 
@@ -83,7 +83,7 @@ export const getAllUsers = async (queryParams = {}) => {
     data.messageDEV = "Usuarios obtenidos exitosamente.";
     data.messageUSR = "Usuarios obtenidos exitosamente.";
     data.dataRes = {
-      users,
+      data: users,
       pagination: {
         total: count,
         page,
