@@ -51,6 +51,7 @@ export const updateUser = async (req, res, next) => {
 }
 
 export const updateProfile = async (req, res, next) => {
+    console.log("Llega a updateProfile controller");
     const tokenData = jwt.decode(req.body.token);
     console.log("Token data decoded:", tokenData);
     try {

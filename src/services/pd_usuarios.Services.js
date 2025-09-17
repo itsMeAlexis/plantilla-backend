@@ -167,6 +167,9 @@ export const updateUser = async (body, userId) => {
   let bitacora = BITACORA();
   let data = DATA();
 
+  console.log("Body recibido para updateUser:", body);
+  console.log("userId recibido para updateUser:", userId);
+
   try {
     bitacora.process = "Actualizar usuario.";
     data.method = "PUT";
@@ -191,13 +194,34 @@ export const updateUser = async (body, userId) => {
       data.messageDEV = `No se encontró usuario con el ID ${userId}.`;
       data.messageUSR = "Usuario no encontrado.";
       throw new Error(data.messageDEV);
+    } else {
+      if (body.usuario) {
+        const usuarioExistente = await Usuarios.findOne({
+          where: {
+            usuario: body.usuario,
+            ID_USUARIO: { [Op.ne]: userId } // Excluye el usuario actual
+          }
+        });
+        if (usuarioExistente) {
+          data.status = 409;
+          data.messageDEV = "El nombre de usuario ya está en uso.";
+          data.messageUSR = "El nombre de usuario ya está en uso.";
+          throw new Error(data.messageDEV);
+        }
+      }
+
+      user.usuario = body.usuario || user.usuario;
+      user.nombre = body.nombre || user.nombre;
+      user.appaterno = body.appaterno || user.appaterno;
+      user.apmaterno = body.apmaterno || user.apmaterno;
+      user.id_rol_usuario = body.rol || user.id_rol_usuario;
+      user.activo = body.activo || user.activo;
+      user.cambio_password = body.cambio_password || user.cambio_password;
+      user.password = body.password || user.password; // Actualiza la contraseña si se proporciona una nueva
     }
 
-    const updatedUser = await Usuarios.update(body, {
-      where: {
-        ID_USUARIO: userId
-      }
-    });
+    console.log("Usuario antes de guardar:", user.toJSON());
+    const updatedUser = await user.save();
 
     if (!updatedUser) {
       data.status = 500;
@@ -231,7 +255,11 @@ export const updateProfile = async (body, userId) => {
   delete body.password;
   delete body.token;
 
+  console.log("Body recibido para updateProfile:", body);
+  console.log("userId recibido para updateProfile:", userId);
+
   try {
+    console.log("llega try");
     bitacora.process = "Actualizar perfil de usuario.";
     data.method = "PUT";
     data.api = "/:id";
@@ -242,14 +270,14 @@ export const updateProfile = async (body, userId) => {
       data.messageUSR = "Por favor, proporciona el ID del usuario.";
       throw new Error(data.messageDEV);
     }
-
+    console.log("llega");
     let user = await Usuarios.findOne({
       where: {
         ID_USUARIO: userId,
         activo: true, // Solo usuarios activos
       }
     });
-
+    console.log("user", user);
     if (!user) {
       data.status = 404;
       data.messageDEV = `No se encontró usuario con el ID ${userId}.`;
@@ -277,7 +305,7 @@ export const updateProfile = async (body, userId) => {
         }
       }
 
-      user.username = body.username || user.username;
+      user.usuario = body.username || user.usuario;
       user.nombre = body.nombre || user.nombre;
       user.appaterno = body.appaterno || user.appaterno;
       user.apmaterno = body.apmaterno || user.apmaterno;

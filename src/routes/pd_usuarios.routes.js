@@ -10,7 +10,7 @@ router.get('/', usuariosController.getAllUsers);
 
 router.get('/getUserById/:IdUsuario', usuariosController.getUserById);
 
-router.put('/updateUser/:IdUsuario', usuariosController.updateUser);
+router.put('/:IdUsuario', usuariosController.updateUser);
 
 router.put('/updateProfile/', authenticate, usuariosController.updateProfile);
 
