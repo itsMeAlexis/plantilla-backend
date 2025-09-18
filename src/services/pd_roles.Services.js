@@ -100,6 +100,8 @@ export const getAllRolesWithAdditionalInfo = async (token, queryParams = {}) => 
       const andConditions = searchParts.map(part => ({
         [Op.or]: [
           // { NombreCompleto: { [Op.iLike]: `%${part}%` } },
+          { letra_rol: { [Op.iLike]: `%${part}%` } },
+          { descripcion: { [Op.iLike]: `%${part}%` } }
         ]
       }));
 
@@ -115,11 +117,15 @@ export const getAllRolesWithAdditionalInfo = async (token, queryParams = {}) => 
         :
         { tipo_rol: { [Op.ne]: "R" } })
     };
+    const rolesCount = await pd_roles.count({
+      ...queryParams,
+    });
     queryParams.offset = start;
     queryParams.limit = length;
     queryParams.order = [["id_rol", "ASC"]];
     // Por ejemplo, podrías hacer joins con otras tablas o agregar cálculos adicionales.
     const roles = await pd_roles.findAll({
+      ...queryParams,
     });
     if (!roles) {
       data.status = 400;
@@ -162,7 +168,7 @@ export const getAllRolesWithAdditionalInfo = async (token, queryParams = {}) => 
     data.process = "Roles obtenidos correctamente.";
     data.messageDEV = "Se obtuvieron todos los roles con información adicional.";
     data.messageUSR = "Se obtuvieron todos los roles con información adicional.";
-    data.dataRes = { data: rolesConConteo };
+    data.dataRes = { data: rolesConConteo, recordsTotal: rolesCount };
 
     bitacora = AddMSG(bitacora, data, "OK", 200, true);
     return OK(bitacora);

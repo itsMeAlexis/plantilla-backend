@@ -14,3 +14,25 @@ export const getAllRolesPaginasByIdRol = async (req, res, next) => {
         next(error);
     }
 }
+
+export const createRolesPaginas = async (req, res, next) => {
+    try {
+        const createNewRolesPaginas = await roles_paginasServices.createRolesPaginas(req.body);
+        if (createNewRolesPaginas) {
+            return res.status(createNewRolesPaginas.status).json(createNewRolesPaginas);
+        }
+    } catch (error) {
+        next(error);
+    }
+}
+export const updateRolesPaginas = async (req, res, next) => {
+    try {
+        const { id } = req.params;
+        const updateRolesPaginas = await roles_paginasServices.updateRolesPaginas(id, req.body);
+        if (updateRolesPaginas) {
+            return res.status(updateRolesPaginas.status).json(updateRolesPaginas);
+        }
+    } catch (error) {
+        next(error);
+    }
+}
