@@ -90,7 +90,7 @@ export const getAllRolesWithAdditionalInfo = async (token, queryParams = {}) => 
     data.method = "GET";
     data.api = "/roles/with-aditional-info";
     const user = jwt.verify(token, config.JWT_SECRET_KEY);
-    console.log(user)
+    // console.log(user)
     let queryParams = {};
     let searchMatch = {};
     //Busqueda
