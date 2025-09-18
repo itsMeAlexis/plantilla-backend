@@ -1,4 +1,4 @@
-import { pd_roles_paginas } from '../models/associations.js'
+import { pd_paginas, pd_roles_paginas } from '../models/associations.js'
 import { BITACORA, DATA, OK, AddMSG, FAIL } from '../middleware/respPWA.handler.js';
 import { Op } from "sequelize";
 import jwt from "jsonwebtoken";
@@ -40,7 +40,7 @@ export const getAllRolesPaginasByIdRol = async (idRol, queryParams = {}) => {
 
     queryParams.where = {
       ...searchMatch,
-      id_rol_rp: idRol
+      id_rol_rp: Number(idRol) || 0,
     };
 
     // Total de registros
@@ -51,10 +51,15 @@ export const getAllRolesPaginasByIdRol = async (idRol, queryParams = {}) => {
     // Registros paginados
     const paginas = await pd_roles_paginas.findAll({
       where: queryParams.where,
+      include:[{
+        model: pd_paginas,
+        as: 'PD_PAGINA',
+      }],
       offset: start,
       limit: length,
       order: [["id_pagina_rp", "DESC"]],
     });
+    console.log(paginas)
 
     if (!paginas) {
       data.status = 400;
