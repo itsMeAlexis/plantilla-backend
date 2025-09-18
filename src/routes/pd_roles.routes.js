@@ -6,4 +6,6 @@ const router = Router();
 
 router.get('/', usuariosController.getAllRoles);
 
+router.get('/with-aditional-info', usuariosController.getAllRolesWithAdditionalInfo);
+
 export default router;

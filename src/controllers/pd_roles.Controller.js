@@ -13,3 +13,15 @@ export const getAllRoles = async (req, res, next) => {
         next(error);
     }
 }
+
+export const getAllRolesWithAdditionalInfo = async (req, res, next) => {
+    try {
+        const token = req.headers.authorization;
+        const getAllRoles = await rolesServices.getAllRolesWithAdditionalInfo(token, req.query);
+        if (getAllRoles) {
+            return res.status(getAllRoles.status).json(getAllRoles);
+        }
+    } catch (error) {
+        next(error);
+    }
+}
